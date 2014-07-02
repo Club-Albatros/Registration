@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dotnetnuke xmlns:fo="http://www.w3.org/1999/XSL/Format" type="Package" version="5.0">
+ <packages>
+  <package type="Module" name="Albatros_Registration" version="01.00.00">
+   <friendlyName>Albatros Registration</friendlyName>
+   <description>Registration module</description>
+   <owner>
+    <name>Peter Donker</name>
+    <organization>Albatros</organization>
+    <url>http://www.bring2mind.net</url>
+    <email>info@Albatros.net</email>
+   </owner>
+   <license src="License.txt"/>
+   <releaseNotes src="ReleaseNotes.txt"/>
+   <dependencies>
+    <dependency type="CoreVersion">05.06.02</dependency>
+   </dependencies>
+   <components>
+    <component type="Module">
+     <desktopModule>
+      <moduleName>Albatros_Registration</moduleName>
+      <foldername>Albatros\Registration</foldername>
+      <moduleDefinitions>
+       <moduleDefinition>
+        <friendlyName>Registration</friendlyName>
+        <defaultCacheTime>0</defaultCacheTime>
+        <moduleControls>
+         <moduleControl>
+          <controlKey/>
+          <controlSrc>DesktopModules/Albatros/Registration/Registration.ascx</controlSrc>
+          <supportsPartialRendering>true</supportsPartialRendering>
+          <controlTitle>Registration</controlTitle>
+          <controlType>View</controlType>
+         </moduleControl>
+         <moduleControl>
+          <controlKey>Fields</controlKey>
+          <controlSrc>DesktopModules/Albatros/Registration/FieldChooser.ascx</controlSrc>
+          <supportsPartialRendering/>
+          <controlTitle>Field Chooser</controlTitle>
+          <controlType>Edit</controlType>
+         </moduleControl>
+         <moduleControl>
+          <controlKey>Settings</controlKey>
+          <controlSrc>DesktopModules/Albatros/Registration/Settings.ascx</controlSrc>
+          <supportsPartialRendering/>
+          <controlTitle>Registration Settings</controlTitle>
+          <controlType>Edit</controlType>
+         </moduleControl>
+        </moduleControls>
+        <permissions/>
+       </moduleDefinition>
+      </moduleDefinitions>
+     </desktopModule>
+    </component>
+   </components>
+  </package>
+ </packages>
+</dotnetnuke>
