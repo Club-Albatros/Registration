@@ -39,6 +39,11 @@
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CountryListBox, Version=7.2.2.303, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>_References\CountryListBox.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="DotNetNuke, Version=5.6.2.144, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>_References\DotNetNuke.dll</HintPath>
@@ -52,6 +57,11 @@
     <Reference Include="DotNetNuke.Web.Client, Version=7.3.0.373, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>_References\DotNetNuke.Web.Client.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="DotNetNuke.WebControls, Version=2.4.0.598, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>_References\DotNetNuke.WebControls.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="DotNetNuke.WebUtility, Version=4.2.1.783, Culture=neutral, processorArchitecture=MSIL">
@@ -113,10 +123,13 @@
     <Import Include="System.Web.UI.HtmlControls" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\CachedCountryList.vb" />
+    <Compile Include="Components\CountryRegionsController.vb" />
     <Compile Include="Components\Data\DataProvider_CMD.vb" />
     <Compile Include="Components\Data\DataProvider_CRUD.vb" />
     <Compile Include="Components\Data\SqlDataProvider_CMD.vb" />
     <Compile Include="Components\Data\SqlDataProvider_CRUD.vb" />
+    <Compile Include="Components\DnnCountryRegionControl.vb" />
     <Compile Include="Components\DnnProfileEditor.vb">
       <SubType>Code</SubType>
     </Compile>
@@ -124,6 +137,7 @@
     <Compile Include="Components\Entities\RoleProperties\RolePropertiesController_Services.vb" />
     <Compile Include="Components\Entities\RoleProperties\RolePropertyInfo_Interfaces.vb" />
     <Compile Include="Components\Entities\RoleProperties\RolePropertyInfo_Properties.vb" />
+    <Compile Include="Components\Extensions.vb" />
     <Compile Include="Components\Globals.vb" />
     <Compile Include="FieldChooser.ascx.designer.vb">
       <DependentUpon>FieldChooser.ascx</DependentUpon>
@@ -193,6 +207,7 @@
   <ItemGroup>
     <Content Include="FieldChooser.ascx" />
     <Content Include="js\albatros.registration.services.js" />
+    <Content Include="js\countryregionbox.js" />
     <Content Include="module.css" />
     <Content Include="Registration.ascx" />
     <Content Include="Settings.ascx" />

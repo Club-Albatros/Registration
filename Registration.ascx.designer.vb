@@ -14,15 +14,6 @@ Option Explicit On
 Partial Public Class Registration
 
  '''<summary>
- '''userHelpLabel control.
- '''</summary>
- '''<remarks>
- '''Auto-generated field.
- '''To modify move field declaration from designer file to code-behind file.
- '''</remarks>
- Protected WithEvents userHelpLabel As Global.System.Web.UI.WebControls.Label
-
- '''<summary>
  '''rpRoles control.
  '''</summary>
  '''<remarks>
@@ -30,6 +21,15 @@ Partial Public Class Registration
  '''To modify move field declaration from designer file to code-behind file.
  '''</remarks>
  Protected WithEvents rpRoles As Global.System.Web.UI.WebControls.Repeater
+
+ '''<summary>
+ '''profileForm control.
+ '''</summary>
+ '''<remarks>
+ '''Auto-generated field.
+ '''To modify move field declaration from designer file to code-behind file.
+ '''</remarks>
+ Protected WithEvents profileForm As Global.Albatros.DNN.Modules.Registration.DnnProfileEditor
 
  '''<summary>
  '''socialLoginControls control.
@@ -93,4 +93,13 @@ Partial Public Class Registration
  '''To modify move field declaration from designer file to code-behind file.
  '''</remarks>
  Protected WithEvents cancelButton As Global.System.Web.UI.WebControls.LinkButton
+
+ '''<summary>
+ '''LinkButton1 control.
+ '''</summary>
+ '''<remarks>
+ '''Auto-generated field.
+ '''To modify move field declaration from designer file to code-behind file.
+ '''</remarks>
+ Protected WithEvents LinkButton1 As Global.System.Web.UI.WebControls.LinkButton
 End Class

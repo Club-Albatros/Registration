@@ -1,14 +1,10 @@
 ﻿<%@ Control Language="vb" AutoEventWireup="false" CodeBehind="Registration.ascx.vb" Inherits="Albatros.DNN.Modules.Registration.Registration" %>
 <%@ Register TagPrefix="dnn" Assembly="DotNetNuke.Web" Namespace="DotNetNuke.Web.UI.WebControls" %>
+<%@ Register TagPrefix="ar" Assembly="Albatros.DNN.Modules.Registration" Namespace="Albatros.DNN.Modules.Registration" %>
 <%@ Register TagPrefix="dnn" TagName="Label" Src="~/controls/LabelControl.ascx" %>
 <%@ Register TagPrefix="dnn" Assembly="DotNetNuke" Namespace="DotNetNuke.UI.WebControls"%>
 
 <div class="dnnForm dnnRegistrationForm">
-    <div class="dnnFormItem">
-        <div class="dnnFormMessage dnnFormInfo"><asp:label id="userHelpLabel" runat="server" /></div>
-    </div>
-    <br/>
-
 <h2 id="H1" class="dnnFormSectionHead">
  <a href="#" class="dnnSectionExpanded">
   <%=LocalizeString("secRoles")%></a></h2>
@@ -17,6 +13,7 @@
   <ItemTemplate>
    <div>
     <asp:CheckBox runat="server" ID="chkActive" AutoPostBack="true" />
+    <asp:HiddenField runat="server" ID="hidRoleID" Value='<%# Eval("RoleId") %>' />
    </div>
    <div>
     <div><%# Eval("RoleName") %></div>
@@ -27,7 +24,7 @@
 </fieldset>
 
     <div class="dnnFormItem dnnClear">
-        <dnn:DnnFormEditor id="userForm" runat="Server" FormMode="Short" />
+        <ar:DnnProfileEditor runat="server" id="profileForm" />
         <div class="dnnSocialRegistration">
             <div id="mainContainer">
                 <ul class="buttonList">
@@ -46,6 +43,7 @@
     </ul>
 </div>
 
+<asp:LinkButton id="LinkButton1" runat="server" CssClass="dnnPrimaryAction" Text="Test" />
 
 
 <script type="text/javascript">
