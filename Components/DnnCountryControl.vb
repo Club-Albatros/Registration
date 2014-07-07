@@ -2,8 +2,8 @@
 Imports DotNetNuke.UI.WebControls
 Imports DotNetNuke.Entities.Portals
 
-<ToolboxData("<{0}:DnnCountryRegionControl runat=server></{0}:DnnCountryRegionControl>")>
-Public Class DnnCountryRegionControl
+<ToolboxData("<{0}:DnnCountryControl runat=server></{0}:DnnCountryControl>")>
+Public Class DnnCountryControl
  Inherits EditControl
 
 #Region " Controls "
@@ -120,10 +120,10 @@ Public Class DnnCountryRegionControl
   Dim script As String = String.Format(
   <![CDATA[
   <script type='text/javascript'>
-   var dnn{0}BoxId = '{1}';
+   var dnnCountryBoxId = '{0}';
   </script>
-  ]]>.Value, CType(Me.Parent, DotNetNuke.Web.UI.WebControls.DnnFormEditControlItem).DataMember, Me.ClientID)
-  DotNetNuke.UI.Utilities.ClientAPI.RegisterStartUpScript(Page, "dnnCountryRegion", script)
+  ]]>.Value, Me.ClientID)
+  DotNetNuke.UI.Utilities.ClientAPI.RegisterStartUpScript(Page, "DnnCountryControl", script)
 
  End Sub
 #End Region
