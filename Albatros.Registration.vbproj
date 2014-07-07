@@ -124,12 +124,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components\CachedCountryList.vb" />
+    <Compile Include="Components\DnnRegionControl.vb" />
     <Compile Include="Components\CountryRegionsController.vb" />
     <Compile Include="Components\Data\DataProvider_CMD.vb" />
     <Compile Include="Components\Data\DataProvider_CRUD.vb" />
     <Compile Include="Components\Data\SqlDataProvider_CMD.vb" />
     <Compile Include="Components\Data\SqlDataProvider_CRUD.vb" />
-    <Compile Include="Components\DnnCountryRegionControl.vb" />
+    <Compile Include="Components\DnnCountryControl.vb" />
     <Compile Include="Components\DnnProfileEditor.vb">
       <SubType>Code</SubType>
     </Compile>

@@ -17,8 +17,9 @@ Public Class CachedCountryList
   MyBase.New()
 
   For Each li As ListEntryInfo In (New ListController).GetListEntryInfoItems("Country")
-   Dim text As String = DotNetNuke.Services.Localization.Localization.GetString(li.Value, "~/App_GlobalResources/Countries.resx", locale)
-   If String.IsNullOrEmpty(text) Then text = li.Text
+   'Dim text As String = DotNetNuke.Services.Localization.Localization.GetString(li.Value, "~/App_GlobalResources/Country.resx", locale)
+   'If String.IsNullOrEmpty(text) Then text = li.Text
+   Dim text As String = li.Text
    Dim c As New Country With {.Code = li.Value, .FullName = String.Format("{0} ({1})", text, li.Value), .Name = text}
    c.NormalizedFullName = c.FullName.NormalizeString
    Add(li.Value, c)

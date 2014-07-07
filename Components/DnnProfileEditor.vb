@@ -206,7 +206,7 @@ Public Class DnnProfileEditor
 
   Dim otherSections As New Dictionary(Of String, DnnFormSection)
   For Each [property] As ProfilePropertyDefinition In allProperties
-   If [property].Required And Not AddedFields.Contains([property].PropertyName.ToLower) Then
+   If Not AddedFields.Contains([property].PropertyName.ToLower) Then
     If Not otherSections.ContainsKey([property].PropertyCategory) Then
      otherSections.Add([property].PropertyCategory, New DnnFormSection With {.ResourceKey = [property].PropertyCategory})
     End If
@@ -214,7 +214,7 @@ Public Class DnnProfileEditor
   Next
 
   For Each [property] As ProfilePropertyDefinition In allProperties
-   If [property].Required And Not AddedFields.Contains([property].PropertyName.ToLower) Then
+   If Not AddedFields.Contains([property].PropertyName.ToLower) Then
     AddProperty(otherSections([property].PropertyCategory), [property])
     AddedFields.Add([property].PropertyName.ToLower)
    End If
@@ -340,18 +340,15 @@ Public Class DnnProfileEditor
    Case "Image"
    Case "Country"
     formItem = New DnnFormEditControlItem With {
-     .ControlType = "Albatros.DNN.Modules.Registration.DnnCountryRegionControl, ALBATROS.DNN.MODULES.REGISTRATION",
-     .DataMember = "Country"
+     .ControlType = "Albatros.DNN.Modules.Registration.DnnCountryControl, ALBATROS.DNN.MODULES.REGISTRATION"
     }
    Case "Region"
     formItem = New DnnFormEditControlItem With {
-     .ControlType = "Albatros.DNN.Modules.Registration.DnnCountryRegionControl, ALBATROS.DNN.MODULES.REGISTRATION",
-     .DataMember = "Region"
+     .ControlType = "Albatros.DNN.Modules.Registration.DnnRegionControl, ALBATROS.DNN.MODULES.REGISTRATION"
     }
    Case Else
     formItem = New DnnFormEditControlItem With {
-     .ControlType = DataTypes([property].DataType).Editor,
-     .DataMember = "Profile"
+     .ControlType = DataTypes([property].DataType).Editor
     }
   End Select
 
@@ -363,6 +360,7 @@ Public Class DnnProfileEditor
    .LocalResourceFile = "~/DesktopModules/Admin/Security/App_LocalResources/Profile.ascx.resx"
    .ValidationMessageSuffix = ".Validation"
    .DataField = [property].PropertyName
+   .DataMember = "Profile"
    .Visible = [property].Visible
    .Required = [property].Required
   End With

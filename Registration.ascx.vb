@@ -310,8 +310,8 @@ Partial Public Class Registration
    Next
   End If
 
+  Dim roles As New List(Of String)
   If Me.IsPostBack Then ' todo
-   Dim roles As New List(Of String)
    For Each item As RepeaterItem In rpRoles.Items
     Dim chk As CheckBox = CType(item.FindControl("chkActive"), CheckBox)
     If chk.Checked Then
@@ -319,8 +319,9 @@ Partial Public Class Registration
      roles.Add(hid.Value)
     End If
    Next
-   profileForm.SelectedRoles = String.Join(";", roles)
   End If
+  If Not roles.Contains(PortalSettings.RegisteredRoleId.ToString) Then roles.Add(PortalSettings.RegisteredRoleId.ToString)
+  profileForm.SelectedRoles = String.Join(";", roles)
   profileForm.DataBind()
 
  End Sub

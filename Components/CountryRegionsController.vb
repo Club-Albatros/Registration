@@ -19,7 +19,8 @@ Public Class CountryRegionsController
 #Region " IServiceRouteMapper "
  Public Sub RegisterRoutes(mapRouteManager As DotNetNuke.Web.Api.IMapRoute) Implements DotNetNuke.Web.Api.IServiceRouteMapper.RegisterRoutes
   mapRouteManager.MapHttpRoute("Albatros/Registration", "ListCountries", "Countries", New With {.Controller = "CountryRegions", .Action = "ListCountries"}, Nothing, New String() {"Albatros.DNN.Modules.Registration"})
-  mapRouteManager.MapHttpRoute("Albatros/Registration", "ListRegions", "Country/{countryId}/Regions", New With {.Controller = "CountryRegions", .Action = "ListRegions"}, New With {.countryId = "\d*"}, New String() {"Albatros.DNN.Modules.Registration"})
+  mapRouteManager.MapHttpRoute("Albatros/Registration", "ListRegions", "Country/{country}/Regions", New With {.Controller = "CountryRegions", .Action = "ListRegions"}, New With {.country = "\w*"}, New String() {"Albatros.DNN.Modules.Registration"})
+  mapRouteManager.MapHttpRoute("Albatros/Registration", "ListSiblingRegions", "Region/{region}/Siblings", New With {.Controller = "CountryRegions", .Action = "ListSiblingRegions"}, Nothing, New String() {"Albatros.DNN.Modules.Registration"})
  End Sub
 #End Region
 
@@ -34,10 +35,14 @@ Public Class CountryRegionsController
 
  <HttpGet()>
  <DnnModuleAuthorize(AccessLevel:=DotNetNuke.Security.SecurityAccessLevel.View)>
- Public Function ListRegions(countryId As Integer) As HttpResponseMessage
+ Public Function ListRegions(country As String) As HttpResponseMessage
+  Return Request.CreateResponse(HttpStatusCode.OK, (New ListController).GetListEntryInfoItems("Region", "Country." & country, ActiveModule.PortalID))
+ End Function
 
-
-  'Return Request.CreateResponse(HttpStatusCode.OK, res)
+ <HttpGet()>
+ <DnnModuleAuthorize(AccessLevel:=DotNetNuke.Security.SecurityAccessLevel.View)>
+ Public Function ListSiblingRegions(region As String) As HttpResponseMessage
+  Return Request.CreateResponse(HttpStatusCode.OK, GetSiblingRegions(ActiveModule.PortalID, region))
  End Function
 #End Region
 
@@ -67,6 +72,10 @@ Public Class CountryRegionsController
     End If
   End Select
   Return res
+ End Function
+
+ Public Shared Function GetSiblingRegions(portalId As Integer, region As String) As List(Of ListEntryInfo)
+  Return DotNetNuke.Common.Utilities.CBO.FillCollection(Of ListEntryInfo)(Data.DataProvider.Instance().GetSiblingRegions(portalId, region))
  End Function
 #End Region
 
