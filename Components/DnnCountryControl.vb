@@ -97,7 +97,6 @@ Public Class DnnCountryControl
 
   If Page IsNot Nothing And EditMode = PropertyEditorMode.Edit Then
    Page.RegisterRequiresPostBack(Me)
-   Page.RegisterRequiresPostBack(CountryName)
    Page.RegisterRequiresPostBack(CountryCode)
   End If
 

@@ -11,15 +11,6 @@
 
   setRegionList();
 
-  if (typeof dnnRegionBoxId !== 'undefined') {
-   $('#' + dnnRegionBoxId + '_dropdown').change(function () {
-    $('#' + dnnRegionBoxId + '_value').val($('#' + dnnRegionBoxId + '_dropdown option:selected').val());
-   });
-   $('#' + dnnRegionBoxId + '_text').change(function () {
-    $('#' + dnnRegionBoxId + '_value').val($('#' + dnnRegionBoxId + '_text').val());
-   });
-  }
-
  }); // doc ready
 } (jQuery, window.Sys));
 
@@ -88,6 +79,12 @@ function setRegionList() {
     });
    }
   }
+  $('#' + dnnRegionBoxId + '_dropdown').change(function () {
+   $('#' + dnnRegionBoxId + '_value').val($('#' + dnnRegionBoxId + '_dropdown option:selected').val());
+  });
+  $('#' + dnnRegionBoxId + '_text').change(function () {
+   $('#' + dnnRegionBoxId + '_value').val($('#' + dnnRegionBoxId + '_text').val());
+  });
  }
 }
 
@@ -137,6 +134,7 @@ function setupAutoComplete() {
 
 function foobar() {
  setupAutoComplete();
+ setRegionList();
 }
 
 Sys.WebForms.PageRequestManager.getInstance().add_endRequest(foobar);

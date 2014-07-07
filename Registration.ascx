@@ -43,8 +43,6 @@
     </ul>
 </div>
 
-<asp:LinkButton id="LinkButton1" runat="server" CssClass="dnnPrimaryAction" Text="Test" />
-
 
 <script type="text/javascript">
  $(function () {

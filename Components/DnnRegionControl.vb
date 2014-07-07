@@ -28,7 +28,7 @@ Public Class DnnRegionControl
  End Property
 
  Private _InitialValue As HiddenField
- Private ReadOnly Property InitialValue As HiddenField
+ Private ReadOnly Property RegionCode As HiddenField
   Get
    If _InitialValue Is Nothing Then
     _InitialValue = New HiddenField
@@ -87,8 +87,8 @@ Public Class DnnRegionControl
   Region.ID = ID + "_text"
   Controls.Add(Region)
 
-  InitialValue.ID = ID + "_value"
-  Controls.Add(InitialValue)
+  RegionCode.ID = ID + "_value"
+  Controls.Add(RegionCode)
 
  End Sub
 
@@ -96,8 +96,7 @@ Public Class DnnRegionControl
   EnsureChildControls()
   Dim dataChanged As Boolean = False
   Dim presentValue As String = StringValue
-  Dim postedValue As String = postCollection(postDataKey & "_dropdown")
-  If String.IsNullOrEmpty(postedValue) Then postedValue = postCollection(postDataKey & "_value")
+  Dim postedValue As String = postCollection(postDataKey & "_value")
   If Not presentValue.Equals(postedValue) Then
    Value = postedValue
    dataChanged = True
@@ -112,7 +111,7 @@ Public Class DnnRegionControl
 
   If Page IsNot Nothing And EditMode = PropertyEditorMode.Edit Then
    Page.RegisterRequiresPostBack(Me)
-   Page.RegisterRequiresPostBack(Regions)
+   Page.RegisterRequiresPostBack(RegionCode)
   End If
 
  End Sub
@@ -144,8 +143,7 @@ Public Class DnnRegionControl
 
 #Region " Private Methods "
  Private Sub LoadControls()
-  ' todo
-  InitialValue.Value = OldStringValue
+  RegionCode.Value = StringValue
  End Sub
 #End Region
 
