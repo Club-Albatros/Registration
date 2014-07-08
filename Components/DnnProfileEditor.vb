@@ -221,7 +221,9 @@ Public Class DnnProfileEditor
   Next
 
   For Each section As DnnFormSection In otherSections.Values
-   Sections.Add(section)
+   If section.Items.Count > 0 Then
+    Sections.Add(section)
+   End If
   Next
 
   Me.DataSource = Me.User
