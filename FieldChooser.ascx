@@ -26,6 +26,8 @@
 (function ($, Sys) {
 
  $(document).ready(function () {
+  
+  $('#fieldchooser tr:odd').addClass('stripe');
 
   service = new RegistrationService($, {
    serverErrorText: '<%= LocalizeJSString("ServerError") %>',

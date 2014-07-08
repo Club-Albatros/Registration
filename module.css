@@ -8,7 +8,10 @@
 {
  cursor: pointer;
 }
-
+.stripe
+{
+ background-color: #ddd;
+}
 
 
 .ui-helper-hidden {
