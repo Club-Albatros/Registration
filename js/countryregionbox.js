@@ -92,7 +92,7 @@ function setRegionDropdown(data) {
  var dd = $('#' + dnnRegionBoxId + '_dropdown');
  $(dd).empty();
  $.each(data, function (index, value) {
-  $(dd).append($('<option>').text(value._Text).attr('value', value._Value));
+  $(dd).append($('<option>').text(value.Text).attr('value', value.Value));
  });
  if ($(dd).children().length == 0) {
   $(dd).hide();

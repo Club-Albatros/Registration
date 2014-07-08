@@ -33,16 +33,29 @@ Public Class CountryRegionsController
   Return Request.CreateResponse(HttpStatusCode.OK, countries.Values.Where(Function(x) x.NormalizedFullName.IndexOf(searchString) > -1).OrderBy(Function(x) x.NormalizedFullName))
  End Function
 
+ Public Structure Region
+  Public Text As String
+  Public Value As String
+ End Structure
+
  <HttpGet()>
  <DnnModuleAuthorize(AccessLevel:=DotNetNuke.Security.SecurityAccessLevel.View)>
  Public Function ListRegions(country As String) As HttpResponseMessage
-  Return Request.CreateResponse(HttpStatusCode.OK, (New ListController).GetListEntryInfoItems("Region", "Country." & country, ActiveModule.PortalID))
+  Dim res As New List(Of Region)
+  For Each r As ListEntryInfo In (New ListController).GetListEntryInfoItems("Region", "Country." & country, ActiveModule.PortalID)
+   res.Add(New Region With {.Text = r.Text, .Value = r.Value})
+  Next
+  Return Request.CreateResponse(HttpStatusCode.OK, res)
  End Function
 
  <HttpGet()>
  <DnnModuleAuthorize(AccessLevel:=DotNetNuke.Security.SecurityAccessLevel.View)>
  Public Function ListSiblingRegions(region As String) As HttpResponseMessage
-  Return Request.CreateResponse(HttpStatusCode.OK, GetSiblingRegions(ActiveModule.PortalID, region))
+  Dim res As New List(Of Region)
+  For Each r As ListEntryInfo In GetSiblingRegions(ActiveModule.PortalID, region)
+   res.Add(New Region With {.Text = r.Text, .Value = r.Value})
+  Next
+  Return Request.CreateResponse(HttpStatusCode.OK, res)
  End Function
 #End Region
 
@@ -56,7 +69,7 @@ Public Class CountryRegionsController
   Dim res As String = input
   Select Case type
    Case ListType.Region
-    res = DotNetNuke.Services.Localization.Localization.GetString(input, "~/App_GlobalResources/Regions.resx", locale)
+    res = DotNetNuke.Services.Localization.Localization.GetString(input, "~/App_GlobalResources/Region.resx", locale)
     If String.IsNullOrEmpty(res) Then
      Dim lei As ListEntryInfo = (New ListController).GetListEntryInfo("Region", input)
      If lei IsNot Nothing Then
