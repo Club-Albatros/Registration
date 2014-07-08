@@ -124,6 +124,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components\CachedCountryList.vb" />
+    <Compile Include="Components\DnnCityControl.vb" />
     <Compile Include="Components\DnnRegionControl.vb" />
     <Compile Include="Components\CountryRegionsController.vb" />
     <Compile Include="Components\Data\DataProvider_CMD.vb" />

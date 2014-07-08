@@ -351,6 +351,10 @@ Public Class DnnProfileEditor
      .ControlType = DataTypes([property].DataType).Editor
     }
   End Select
+  Select Case [property].PropertyName.ToLower
+   Case "city"
+    formItem.ControlType = "Albatros.DNN.Modules.Registration.DnnCityControl, ALBATROS.DNN.MODULES.REGISTRATION"
+  End Select
 
   If formItem Is Nothing Then Exit Sub
 

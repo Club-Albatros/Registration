@@ -7,9 +7,9 @@
    errorBoxId: ''
   }, 500);
 
-  setupAutoComplete();
-
+  setupCountryAutoComplete();
   setRegionList();
+  setupCityAutoComplete();
 
  }); // doc ready
 } (jQuery, window.Sys));
@@ -63,6 +63,21 @@ function CountryRegionService($, settings, mid) {
   });
  };
 
+ this.listCities = function (searchString, success) {
+  $.ajax({
+   type: "GET",
+   url: baseServicepath + 'Cities',
+   beforeSend: $.dnnSF(moduleId).setModuleHeaders,
+   data: { searchString: searchString }
+  }).done(function (data) {
+   if (success != undefined) {
+    success(data);
+   }
+  }).fail(function (xhr, status) {
+   displayMessage(settings.errorBoxId, settings.serverErrorWithDescription + eval("(" + xhr.responseText + ")").ExceptionMessage, "dnnFormWarning");
+  });
+ };
+
 }
 
 function setRegionList() {
@@ -105,7 +120,7 @@ function setRegionDropdown(data) {
  }
 }
 
-function setupAutoComplete() {
+function setupCountryAutoComplete() {
  $('#' + dnnCountryBoxId + '_name').autocomplete({
   minLength: 2,
   source: function (request, response) {
@@ -131,10 +146,29 @@ function setupAutoComplete() {
  })
 }
 
+function setupCityAutoComplete() {
+ if (typeof dnnCityBoxId !== 'undefined') {
+  $('#' + dnnCityBoxId).autocomplete({
+   minLength: 2,
+   source: function (request, response) {
+    crservice.listCities(request.term, function (data) {
+     response($.map(data, function (item) {
+      return {
+       label: item,
+       value: item,
+       name: item
+      };
+     }))
+    })
+   }
+  })
+ }
+}
 
 function foobar() {
- setupAutoComplete();
+ setupCountryAutoComplete();
  setRegionList();
+ setupCityAutoComplete();
 }
 
 Sys.WebForms.PageRequestManager.getInstance().add_endRequest(foobar);

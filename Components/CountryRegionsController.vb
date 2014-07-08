@@ -21,6 +21,7 @@ Public Class CountryRegionsController
   mapRouteManager.MapHttpRoute("Albatros/Registration", "ListCountries", "Countries", New With {.Controller = "CountryRegions", .Action = "ListCountries"}, Nothing, New String() {"Albatros.DNN.Modules.Registration"})
   mapRouteManager.MapHttpRoute("Albatros/Registration", "ListRegions", "Country/{country}/Regions", New With {.Controller = "CountryRegions", .Action = "ListRegions"}, New With {.country = "\w*"}, New String() {"Albatros.DNN.Modules.Registration"})
   mapRouteManager.MapHttpRoute("Albatros/Registration", "ListSiblingRegions", "Region/{region}/Siblings", New With {.Controller = "CountryRegions", .Action = "ListSiblingRegions"}, Nothing, New String() {"Albatros.DNN.Modules.Registration"})
+  mapRouteManager.MapHttpRoute("Albatros/Registration", "ListCities", "Cities", New With {.Controller = "CountryRegions", .Action = "ListCities"}, Nothing, New String() {"Albatros.DNN.Modules.Registration"})
  End Sub
 #End Region
 
@@ -57,6 +58,13 @@ Public Class CountryRegionsController
   Next
   Return Request.CreateResponse(HttpStatusCode.OK, res)
  End Function
+
+ <HttpGet()>
+ <DnnModuleAuthorize(AccessLevel:=DotNetNuke.Security.SecurityAccessLevel.View)>
+ Public Function ListCities() As HttpResponseMessage
+  Dim searchString As String = HttpContext.Current.Request.Params("SearchString").NormalizeString
+  Return Request.CreateResponse(HttpStatusCode.OK, ListProperties(ActiveModule.PortalID, "City", searchString))
+ End Function
 #End Region
 
 #Region " Other Methods "
@@ -89,6 +97,16 @@ Public Class CountryRegionsController
 
  Public Shared Function GetSiblingRegions(portalId As Integer, region As String) As List(Of ListEntryInfo)
   Return DotNetNuke.Common.Utilities.CBO.FillCollection(Of ListEntryInfo)(Data.DataProvider.Instance().GetSiblingRegions(portalId, region))
+ End Function
+
+ Public Shared Function ListProperties(portalId As Integer, propertyName As String, searchString As String) As List(Of String)
+  Dim res As New List(Of String)
+  Using ir As IDataReader = Data.DataProvider.Instance().ListProperties(portalId, propertyName, searchString)
+   Do While ir.Read
+    res.Add(CStr(ir.Item(0)))
+   Loop
+  End Using
+  Return res
  End Function
 #End Region
 
