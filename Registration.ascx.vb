@@ -270,6 +270,17 @@ Partial Public Class Registration
   rpRoles.DataSource = Settings.RolesToShow.Values
   rpRoles.DataBind()
 
+  If Me.UserInfo IsNot Nothing And Not Me.IsPostBack Then
+   Dim userRoles As List(Of UserRoleInfo) = CType((New Roles.RoleController).GetUserRoles(UserInfo, True), Global.System.Collections.Generic.List(Of Global.DotNetNuke.Entities.Users.UserRoleInfo))
+   For Each item As RepeaterItem In rpRoles.Items
+    Dim hid As HiddenField = CType(item.FindControl("hidRoleID"), HiddenField)
+    If userRoles.Select(Function(x) x.RoleID.ToString = hid.Value).Count > 0 Then
+     Dim chk As CheckBox = CType(item.FindControl("chkActive"), CheckBox)
+     chk.Checked = True
+    End If
+   Next
+  End If
+
   AddHandler cancelButton.Click, AddressOf cancelButton_Click
   AddHandler registerButton.Click, AddressOf registerButton_Click
 
@@ -311,15 +322,13 @@ Partial Public Class Registration
   End If
 
   Dim roles As New List(Of String)
-  If Me.IsPostBack Then ' todo
-   For Each item As RepeaterItem In rpRoles.Items
-    Dim chk As CheckBox = CType(item.FindControl("chkActive"), CheckBox)
-    If chk.Checked Then
-     Dim hid As HiddenField = CType(item.FindControl("hidRoleID"), HiddenField)
-     roles.Add(hid.Value)
-    End If
-   Next
-  End If
+  For Each item As RepeaterItem In rpRoles.Items
+   Dim chk As CheckBox = CType(item.FindControl("chkActive"), CheckBox)
+   If chk.Checked Then
+    Dim hid As HiddenField = CType(item.FindControl("hidRoleID"), HiddenField)
+    roles.Add(hid.Value)
+   End If
+  Next
   If Not roles.Contains(PortalSettings.RegisteredRoleId.ToString) Then roles.Add(PortalSettings.RegisteredRoleId.ToString)
   profileForm.SelectedRoles = String.Join(";", roles)
   profileForm.DataBind()
