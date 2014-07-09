@@ -146,6 +146,20 @@ Public Class DnnProfileEditor
   For Each t As ListEntryInfo In (New ListController).GetListEntryInfoItems("DataType")
    DataTypes.Add(t.EntryID, New DataType With {.Name = t.Value, .Editor = t.Text})
   Next
+  DotNetNuke.Web.Client.ClientResourceManagement.ClientResourceManager.RegisterScript(Page, ResolveUrl("~/DesktopModules/Albatros/Registration/js/dnnprofileeditor.js"), 70)
+  DotNetNuke.Framework.jQuery.RequestRegistration()
+ End Sub
+
+ Private Sub DnnProfileEditor_Load(sender As Object, e As System.EventArgs) Handles Me.Load
+
+  Dim script As String = String.Format(
+  <![CDATA[
+  <script type='text/javascript'>
+   var dnnProfileEditorId = '{0}';
+  </script>
+  ]]>.Value, Me.ClientID)
+  DotNetNuke.UI.Utilities.ClientAPI.RegisterStartUpScript(Page, "DnnProfileEditor", script)
+
  End Sub
 #End Region
 
@@ -184,24 +198,6 @@ Public Class DnnProfileEditor
    End If
   End If
 
-
-  Dim nameSection As New DnnFormSection
-  nameSection.ResourceKey = "secName"
-  Sections.Add(nameSection)
-
-  'DisplayName
-  If [String].IsNullOrEmpty(DisplayNameFormat) Then
-   AddField(nameSection, "DisplayName", [String].Empty, True, [String].Empty, TextBoxMode.SingleLine)
-  Else
-   AddField(nameSection, "FirstName", [String].Empty, True, [String].Empty, TextBoxMode.SingleLine)
-   AddField(nameSection, "LastName", [String].Empty, True, [String].Empty, TextBoxMode.SingleLine)
-  End If
-
-  'Email
-  If Not UseEmailAsUserName Then
-   AddField(nameSection, "Email", [String].Empty, True, EmailValidator, TextBoxMode.SingleLine)
-  End If
-
   Dim allProperties As List(Of ProfilePropertyDefinition) = RolePropertiesController.GetProfileProperties(PortalId, SelectedRoles)
 
   Dim otherSections As New Dictionary(Of String, DnnFormSection)
@@ -213,12 +209,34 @@ Public Class DnnProfileEditor
    End If
   Next
 
+  ' Set name fields section
+  Dim nameSection As New DnnFormSection
+  If otherSections.ContainsKey("Name") Then
+   nameSection = otherSections("Name")
+  Else
+   nameSection.ResourceKey = "secName"
+   Sections.Add(nameSection)
+  End If
+
+  'Email goes first
+  If Not UseEmailAsUserName Then
+   AddField(nameSection, "Email", [String].Empty, True, EmailValidator, TextBoxMode.SingleLine)
+  End If
+
   For Each [property] As ProfilePropertyDefinition In allProperties
    If Not AddedFields.Contains([property].PropertyName.ToLower) Then
     AddProperty(otherSections([property].PropertyCategory), [property])
     AddedFields.Add([property].PropertyName.ToLower)
    End If
   Next
+
+  'DisplayName goes last
+  If [String].IsNullOrEmpty(DisplayNameFormat) Then
+   AddField(nameSection, "DisplayName", [String].Empty, True, [String].Empty, TextBoxMode.SingleLine)
+  Else
+   AddField(nameSection, "FirstName", [String].Empty, True, [String].Empty, TextBoxMode.SingleLine)
+   AddField(nameSection, "LastName", [String].Empty, True, [String].Empty, TextBoxMode.SingleLine)
+  End If
 
   For Each section As DnnFormSection In otherSections.Values
    If section.Items.Count > 0 Then

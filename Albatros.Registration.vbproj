@@ -209,6 +209,7 @@
   <ItemGroup>
     <Content Include="FieldChooser.ascx" />
     <Content Include="js\albatros.registration.services.js" />
+    <Content Include="js\dnnprofileeditor.js" />
     <Content Include="js\countryregionbox.js" />
     <Content Include="module.css" />
     <Content Include="Registration.ascx" />
