@@ -7,13 +7,13 @@ Public Class DnnCityControl
  Inherits TextEditControl
 
 #Region " Page Events "
- Private Sub DnnCountryRegionControl_Init(sender As Object, e As System.EventArgs) Handles Me.Init
+ Private Sub DnnCityRegionControl_Init(sender As Object, e As System.EventArgs) Handles Me.Init
   DotNetNuke.Web.Client.ClientResourceManagement.ClientResourceManager.RegisterScript(Page, ResolveUrl("~/DesktopModules/Albatros/Registration/js/countryregionbox.js"), 70)
   DotNetNuke.Framework.jQuery.RequestRegistration()
   DotNetNuke.Framework.jQuery.RequestUIRegistration()
  End Sub
 
- Private Sub DnnCountryRegionControl_Load(sender As Object, e As System.EventArgs) Handles Me.Load
+ Private Sub DnnCityRegionControl_Load(sender As Object, e As System.EventArgs) Handles Me.Load
 
   Dim script As String = String.Format(
   <![CDATA[
