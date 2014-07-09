@@ -26,6 +26,12 @@ Public Class Settings
   cblRoles.DataSource = (New RoleController).GetPortalRoles(PortalId)
   cblRoles.DataBind()
 
+  For Each itm As ListItem In cblRoles.Items
+   If itm.Value = PortalSettings.RegisteredRoleId.ToString Then
+    itm.Enabled = False
+   End If
+  Next
+
  End Sub
 #End Region
 
