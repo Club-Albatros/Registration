@@ -38,6 +38,19 @@ Public Class ModuleBase
   End Set
  End Property
 
+ Private _psettings As PortalSettings
+ Public Shadows Property PSettings() As PortalSettings
+  Get
+   If _psettings Is Nothing Then
+    _psettings = Albatros.DNN.Modules.Registration.PortalSettings.GetSettings(PortalId)
+   End If
+   Return _psettings
+  End Get
+  Set(ByVal Value As PortalSettings)
+   _psettings = Value
+  End Set
+ End Property
+
  Public ReadOnly Property Locale As Globalization.CultureInfo
   Get
    Return Threading.Thread.CurrentThread.CurrentCulture

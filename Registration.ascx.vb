@@ -53,47 +53,18 @@ Partial Public Class Registration
  End Property
  Private m_CreateStatus As UserCreateStatus
 
- Protected ReadOnly Property DisplayNameFormat() As String
-  Get
-   Return GetSettingValue("Security_DisplayNameFormat")
-  End Get
- End Property
-
- Protected ReadOnly Property EmailValidator() As String
-  Get
-   Return GetSettingValue("Security_EmailValidation")
-  End Get
- End Property
-
- Protected ReadOnly Property ExcludeTerms() As String
-  Get
-   Dim excludeTerms__1 As String = GetSettingValue("Registration_ExcludeTerms")
-   Dim regex As String = [String].Empty
-   If Not [String].IsNullOrEmpty(excludeTerms__1) Then
-    regex = "^(?:(?!" & excludeTerms__1.Replace(" ", "").Replace(",", "|") & ").)*$\r?\n?"
-   End If
-   Return regex
-  End Get
- End Property
-
- Protected ReadOnly Property RandomPassword() As Boolean
-  Get
-   Return Convert.ToBoolean(GetSetting(PortalId, "Registration_RandomPassword"))
-  End Get
- End Property
-
  Protected ReadOnly Property RedirectURL() As String
   Get
    Dim _RedirectURL As String = ""
 
-   Dim setting As Object = GetSetting(PortalId, "Redirect_AfterRegistration")
+   'Dim setting As Object = GetSetting(PortalId, "Redirect_AfterRegistration")
 
-   If Convert.ToInt32(setting) > 0 Then
+   If PSettings.Registration.RedirectAfterRegistration > 0 Then
     'redirect to after registration page
-    _RedirectURL = DotNetNuke.Common.Globals.NavigateURL(Convert.ToInt32(setting))
+    _RedirectURL = DotNetNuke.Common.Globals.NavigateURL(PSettings.Registration.RedirectAfterRegistration)
    Else
 
-    If Convert.ToInt32(setting) <= 0 Then
+    If PSettings.Registration.RedirectAfterRegistration <= 0 Then
      If Request.QueryString("returnurl") IsNot Nothing Then
       'return to the url passed to register
       _RedirectURL = HttpUtility.UrlDecode(Request.QueryString("returnurl"))
@@ -114,72 +85,11 @@ Partial Public Class Registration
      End If
     Else
      'redirect to after registration page
-     _RedirectURL = DotNetNuke.Common.Globals.NavigateURL(Convert.ToInt32(setting))
+     _RedirectURL = DotNetNuke.Common.Globals.NavigateURL(PSettings.Registration.RedirectAfterRegistration)
     End If
    End If
 
    Return _RedirectURL
-  End Get
- End Property
-
-
- Protected ReadOnly Property RegistrationFields() As String
-  Get
-   Return GetSettingValue("Registration_RegistrationFields")
-  End Get
- End Property
-
- Protected ReadOnly Property RegistrationFormType() As Integer
-  Get
-   Return Convert.ToInt32(GetSettingValue("Registration_RegistrationFormType"))
-  End Get
- End Property
-
- Protected ReadOnly Property RequirePasswordConfirm() As Boolean
-  Get
-   Return Convert.ToBoolean(GetSetting(PortalId, "Registration_RequireConfirmPassword"))
-  End Get
- End Property
-
- Protected ReadOnly Property RequireUniqueDisplayName() As Boolean
-  Get
-   Return Convert.ToBoolean(GetSetting(PortalId, "Registration_RequireUniqueDisplayName"))
-  End Get
- End Property
-
- Protected ReadOnly Property RequireValidProfile() As Boolean
-  Get
-   Return Convert.ToBoolean(GetSetting(PortalId, "Security_RequireValidProfile"))
-  End Get
- End Property
-
- Protected ReadOnly Property UseAuthProviders() As Boolean
-  Get
-   Return Convert.ToBoolean(GetSetting(PortalId, "Registration_UseAuthProviders"))
-  End Get
- End Property
-
- Protected ReadOnly Property UseCaptcha() As Boolean
-  Get
-   Return Convert.ToBoolean(GetSetting(PortalId, "Security_CaptchaRegister"))
-  End Get
- End Property
-
- Protected ReadOnly Property UseEmailAsUserName() As Boolean
-  Get
-   Return Convert.ToBoolean(GetSetting(PortalId, "Registration_UseEmailAsUserName"))
-  End Get
- End Property
-
- Protected ReadOnly Property UserNameValidator() As String
-  Get
-   Return GetSettingValue("Security_UserNameValidation")
-  End Get
- End Property
-
- Protected ReadOnly Property UseProfanityFilter() As Boolean
-  Get
-   Return Convert.ToBoolean(GetSetting(PortalId, "Registration_UseProfanityFilter"))
   End Get
  End Property
 
@@ -206,56 +116,51 @@ Partial Public Class Registration
   AddHandler authLoginControl.UserAuthenticated, AddressOf UserAuthenticated
  End Sub
 
- Private Sub CreateUser()
-  'Update DisplayName to conform to Format
-  UpdateDisplayName()
+ Private Sub CreateOrUpdateUser()
 
-  User.Membership.Approved = PortalSettings.UserRegistration = CInt(DotNetNuke.Common.Globals.PortalRegistrationType.PublicRegistration)
-  Dim user__1 As UserInfo = User
-  CreateStatus = UserController.CreateUser(user__1)
+  User = profileForm.User
 
-  DataCache.ClearPortalCache(PortalId, True)
+  If User.UserID = -1 Then ' Create User
 
-  Try
-   If CreateStatus = UserCreateStatus.Success Then
-    'hide the succesful captcha
-    captchaRow.Visible = False
-
-    'Assocate alternate Login with User and proceed with Login
-    If Not [String].IsNullOrEmpty(AuthenticationType) Then
-     AuthenticationController.AddUserAuthentication(User.UserID, AuthenticationType, UserToken)
-    End If
-
-    Dim strMessage As String = CompleteUserCreation(CreateStatus, user__1, True, IsRegister)
-
-    If (String.IsNullOrEmpty(strMessage)) Then
-     Response.Redirect(RedirectURL, True)
-    End If
-   Else
-    AddLocalizedModuleMessage(UserController.GetUserCreateStatus(CreateStatus), ModuleMessage.ModuleMessageType.RedError, True)
+   'Dim setting As Object = GetSetting(PortalId, "Security_DisplayNameFormat")
+   If Not String.IsNullOrEmpty(PSettings.Security.DisplayNameFormat) Then
+    User.UpdateDisplayName(PSettings.Security.DisplayNameFormat)
    End If
-  Catch exc As Exception
-   'Module failed to load
-   Exceptions.ProcessModuleLoadException(Me, exc)
-  End Try
- End Sub
 
- Private Function GetSettingValue(key As String) As String
-  Dim value As String = [String].Empty
-  Dim setting As Object = GetSetting(UserPortalID, key)
-  If (setting IsNot Nothing) AndAlso (Not [String].IsNullOrEmpty(Convert.ToString(setting))) Then
-   value = Convert.ToString(setting)
+   User.Membership.Approved = PortalSettings.UserRegistration = CInt(DotNetNuke.Common.Globals.PortalRegistrationType.PublicRegistration)
+   Dim user__1 As UserInfo = User
+   CreateStatus = UserController.CreateUser(user__1)
+
+   DataCache.ClearPortalCache(PortalId, True)
+
+   Try
+    If CreateStatus = UserCreateStatus.Success Then
+     'hide the succesful captcha
+     captchaRow.Visible = False
+
+     'Assocate alternate Login with User and proceed with Login
+     If Not [String].IsNullOrEmpty(AuthenticationType) Then
+      AuthenticationController.AddUserAuthentication(User.UserID, AuthenticationType, UserToken)
+     End If
+
+     Dim strMessage As String = CompleteUserCreation(CreateStatus, user__1, True, IsRegister)
+
+     If (String.IsNullOrEmpty(strMessage)) Then
+      Response.Redirect(RedirectURL, True)
+     End If
+    Else
+     AddLocalizedModuleMessage(UserController.GetUserCreateStatus(CreateStatus), ModuleMessage.ModuleMessageType.RedError, True)
+    End If
+   Catch exc As Exception
+    'Module failed to load
+    Exceptions.ProcessModuleLoadException(Me, exc)
+   End Try
+
+  Else ' Update User
+
+
   End If
-  Return value
 
- End Function
-
- Private Sub UpdateDisplayName()
-  'Update DisplayName to conform to Format
-  Dim setting As Object = GetSetting(UserPortalID, "Security_DisplayNameFormat")
-  If (setting IsNot Nothing) AndAlso (Not String.IsNullOrEmpty(Convert.ToString(setting))) Then
-   User.UpdateDisplayName(Convert.ToString(setting))
-  End If
  End Sub
 
  Protected Overrides Sub OnInit(e As EventArgs)
@@ -284,7 +189,7 @@ Partial Public Class Registration
   AddHandler cancelButton.Click, AddressOf cancelButton_Click
   AddHandler registerButton.Click, AddressOf registerButton_Click
 
-  If UseAuthProviders Then
+  If PSettings.Registration.UseAuthProviders Then
    Dim authSystems As List(Of AuthenticationInfo) = AuthenticationController.GetEnabledAuthenticationServices()
    For Each authSystem As AuthenticationInfo In authSystems
     Try
@@ -304,18 +209,19 @@ Partial Public Class Registration
     End Try
    Next
   End If
+
  End Sub
 
  Protected Overrides Sub OnLoad(e As EventArgs)
   MyBase.OnLoad(e)
 
-  If UseCaptcha Then
+  If PSettings.Security.UseCaptcha Then
    captchaRow.Visible = True
    ctlCaptcha.ErrorMessage = Localization.GetString("InvalidCaptcha", LocalResourceFile)
    ctlCaptcha.Text = Localization.GetString("CaptchaText", LocalResourceFile)
   End If
 
-  If UseAuthProviders AndAlso [String].IsNullOrEmpty(AuthenticationType) Then
+  If PSettings.Registration.UseAuthProviders AndAlso [String].IsNullOrEmpty(AuthenticationType) Then
    For Each authLoginControl As AuthenticationLoginBase In _loginControls
     socialLoginControls.Controls.Add(authLoginControl)
    Next
@@ -340,9 +246,9 @@ Partial Public Class Registration
  End Sub
 
  Private Sub registerButton_Click(sender As Object, e As EventArgs)
-  If (UseCaptcha AndAlso ctlCaptcha.IsValid) OrElse Not UseCaptcha Then
+  If (PSettings.Security.UseCaptcha AndAlso ctlCaptcha.IsValid) OrElse Not PSettings.Security.UseCaptcha Then
    If profileForm.IsValid Then
-    CreateUser()
+    CreateOrUpdateUser()
    Else
     If CreateStatus <> UserCreateStatus.AddUser Then
      AddLocalizedModuleMessage(UserController.GetUserCreateStatus(CreateStatus), ModuleMessage.ModuleMessageType.RedError, True)
@@ -352,49 +258,64 @@ Partial Public Class Registration
  End Sub
 
  Private Sub UserAuthenticated(sender As Object, e As UserAuthenticatedEventArgs)
-  Dim profileProperties As NameValueCollection = e.Profile
 
-  profileForm.User.Username = e.UserToken
-  AuthenticationType = e.AuthenticationType
-  UserToken = e.UserToken
+  User = e.User
 
-  For Each key As String In profileProperties
-   Select Case key
-    Case "FirstName"
-     profileForm.User.FirstName = profileProperties(key)
-     Exit Select
-    Case "LastName"
-     profileForm.User.LastName = profileProperties(key)
-     Exit Select
-    Case "Email"
-     profileForm.User.Email = profileProperties(key)
-     Exit Select
-    Case "DisplayName"
-     profileForm.User.DisplayName = profileProperties(key)
-     Exit Select
-    Case Else
-     profileForm.User.Profile.SetProfileProperty(key, profileProperties(key))
-     Exit Select
-   End Select
-  Next
+  Select Case e.LoginStatus
 
-  'Generate a random password for the user
-  profileForm.User.Membership.Password = UserController.GeneratePassword()
+   Case UserLoginStatus.LOGIN_FAILURE ' we need to create the user
 
-  If Not [String].IsNullOrEmpty(profileForm.User.Email) Then
-   CreateUser()
-  Else
-   AddLocalizedModuleMessage(LocalizeString("NoEmail"), ModuleMessage.ModuleMessageType.RedError, True)
-   For Each formItem As DnnFormItemBase In profileForm.Items
-    formItem.Visible = formItem.DataField = "Email"
-   Next
-   profileForm.DataBind()
-  End If
+    Dim profileProperties As NameValueCollection = e.Profile
+    User.Username = e.UserToken
+    AuthenticationType = e.AuthenticationType
+    UserToken = e.UserToken
+    For Each key As String In profileProperties
+     Select Case key
+      Case "FirstName"
+       User.FirstName = profileProperties(key)
+       Exit Select
+      Case "LastName"
+       User.LastName = profileProperties(key)
+       Exit Select
+      Case "Email"
+       User.Email = profileProperties(key)
+       Exit Select
+      Case "DisplayName"
+       User.DisplayName = profileProperties(key)
+       Exit Select
+      Case Else
+       User.Profile.SetProfileProperty(key, profileProperties(key))
+       Exit Select
+     End Select
+    Next
+    'Generate a random password for the user
+    User.Membership.Password = UserController.GeneratePassword()
+
+    If Not [String].IsNullOrEmpty(User.Email) Then
+     CreateOrUpdateUser()
+    Else
+     AddLocalizedModuleMessage(LocalizeString("NoEmail"), ModuleMessage.ModuleMessageType.RedError, True)
+     For Each formItem As DnnFormItemBase In profileForm.Items
+      formItem.Visible = formItem.DataField = "Email"
+     Next
+    End If
+
+   Case UserLoginStatus.LOGIN_USERLOCKEDOUT
+    AddLocalizedModuleMessage(String.Format(Localization.GetString("UserLockedOut", LocalResourceFile), Host.AutoAccountUnlockDuration), ModuleMessage.ModuleMessageType.RedError, True)
+   Case UserLoginStatus.LOGIN_USERNOTAPPROVED
+    AddModuleMessage(e.Message, ModuleMessage.ModuleMessageType.RedError, True)
+   Case Else
+
+    ' user is getting logged in with an existing account
+
+  End Select
+
+  profileForm.User = User
+  profileForm.DataBind()
+
  End Sub
 
  Private Sub Page_Load(sender As Object, e As System.EventArgs) Handles Me.Load
-
-  ' Me.LocalResourceFile = "DesktopModules\Admin\Security\App_LocalResources\Profile"
 
  End Sub
 
