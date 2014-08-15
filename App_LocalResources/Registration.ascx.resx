@@ -127,7 +127,7 @@
     <value>Edit Roles</value>
   </data>
   <data name="secLogin.Text" xml:space="preserve">
-    <value>Login</value>
+    <value>Create Account</value>
   </data>
   <data name="secName.Text" xml:space="preserve">
     <value>Name</value>

@@ -6,14 +6,14 @@
    <description>Registration module</description>
    <owner>
     <name>Peter Donker</name>
-    <organization>Albatros</organization>
-    <url>http://www.bring2mind.net</url>
-    <email>info@Albatros.net</email>
+    <organization>Club Albatros</organization>
+    <url>http://www.clubalbatros.ch</url>
+    <email>webmaster@clubalbatros.ch</email>
    </owner>
    <license src="License.txt"/>
    <releaseNotes src="ReleaseNotes.txt"/>
    <dependencies>
-    <dependency type="CoreVersion">05.06.02</dependency>
+    <dependency type="CoreVersion">07.01.02</dependency>
    </dependencies>
    <components>
     <component type="Module">
