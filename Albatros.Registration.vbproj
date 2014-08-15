@@ -124,6 +124,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components\CachedCountryList.vb" />
+    <Compile Include="Components\DictionaryExtensions.vb" />
+    <Compile Include="Components\DnnFormPasswordItem.vb" />
+    <Compile Include="Components\DnnFormTextBoxItem.vb" />
+    <Compile Include="Components\Entities\RoleLocalizations\RoleLocalizationInfo_Interfaces.vb" />
+    <Compile Include="Components\Entities\RoleLocalizations\RoleLocalizationInfo_Properties.vb" />
+    <Compile Include="Components\Entities\RoleLocalizations\RoleLocalizationsController.vb" />
+    <Compile Include="Components\Entities\Roles\RegistrationRoleInfo_Interfaces.vb" />
+    <Compile Include="Components\Entities\Roles\RegistrationRoleInfo_Properties.vb" />
+    <Compile Include="Components\Entities\Roles\RegistrationRoleController_Services.vb" />
+    <Compile Include="Components\GroupItemTokenReplace.vb" />
+    <Compile Include="Components\IIndexable.vb" />
+    <Compile Include="Components\RegistrationSettings.vb" />
     <Compile Include="Components\DnnCityControl.vb" />
     <Compile Include="Components\DnnRegionControl.vb" />
     <Compile Include="Components\CountryRegionsController.vb" />
@@ -141,6 +153,8 @@
     <Compile Include="Components\Entities\RoleProperties\RolePropertyInfo_Properties.vb" />
     <Compile Include="Components\Extensions.vb" />
     <Compile Include="Components\Globals.vb" />
+    <Compile Include="Components\PortalSettings.vb" />
+    <Compile Include="Components\SecuritySettings.vb" />
     <Compile Include="FieldChooser.ascx.designer.vb">
       <DependentUpon>FieldChooser.ascx</DependentUpon>
     </Compile>
@@ -153,6 +167,20 @@
     </Compile>
     <Compile Include="Registration.ascx.vb">
       <DependentUpon>Registration.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Role.ascx.designer.vb">
+      <DependentUpon>Role.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Role.ascx.vb">
+      <DependentUpon>Role.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="RoleEditor.ascx.designer.vb">
+      <DependentUpon>RoleEditor.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="RoleEditor.ascx.vb">
+      <DependentUpon>RoleEditor.ascx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Settings.ascx.designer.vb">
@@ -209,10 +237,13 @@
   <ItemGroup>
     <Content Include="FieldChooser.ascx" />
     <Content Include="js\albatros.registration.services.js" />
+    <Content Include="js\albatros.roles.services.js" />
     <Content Include="js\dnnprofileeditor.js" />
     <Content Include="js\countryregionbox.js" />
     <Content Include="module.css" />
     <Content Include="Registration.ascx" />
+    <Content Include="Role.ascx" />
+    <Content Include="RoleEditor.ascx" />
     <Content Include="Settings.ascx" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />

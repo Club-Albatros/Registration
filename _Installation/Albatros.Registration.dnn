@@ -28,21 +28,28 @@
          <moduleControl>
           <controlKey/>
           <controlSrc>DesktopModules/Albatros/Registration/Registration.ascx</controlSrc>
-          <supportsPartialRendering>true</supportsPartialRendering>
+          <supportsPartialRendering>false</supportsPartialRendering>
           <controlTitle>Registration</controlTitle>
           <controlType>View</controlType>
          </moduleControl>
          <moduleControl>
           <controlKey>Fields</controlKey>
           <controlSrc>DesktopModules/Albatros/Registration/FieldChooser.ascx</controlSrc>
-          <supportsPartialRendering/>
+          <supportsPartialRendering>false</supportsPartialRendering>
           <controlTitle>Field Chooser</controlTitle>
+          <controlType>Edit</controlType>
+         </moduleControl>
+         <moduleControl>
+          <controlKey>Roles</controlKey>
+          <controlSrc>DesktopModules/Albatros/Registration/RoleEditor.ascx</controlSrc>
+          <supportsPartialRendering>false</supportsPartialRendering>
+          <controlTitle>Role Editor</controlTitle>
           <controlType>Edit</controlType>
          </moduleControl>
          <moduleControl>
           <controlKey>Settings</controlKey>
           <controlSrc>DesktopModules/Albatros/Registration/Settings.ascx</controlSrc>
-          <supportsPartialRendering/>
+          <supportsPartialRendering>false</supportsPartialRendering>
           <controlTitle>Registration Settings</controlTitle>
           <controlType>Edit</controlType>
          </moduleControl>

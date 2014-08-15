@@ -12,7 +12,33 @@
 {
  background-color: #ddd;
 }
-
+.ar_editrowdiv
+{
+ display: inline-block;
+ vertical-align: top;
+ min-width: 200px;
+ padding: 5px;
+}
+.ar_rs 
+{
+ border: 1px solid #ddd;
+	border-radius: 6px;
+	padding: 6px;
+	margin-bottom: 10px;
+}
+.ar_rs_name
+{
+ display: inline-block;
+ font-weight: bold;
+}
+.ar_role
+{
+ display: block;
+ border: 1px solid #ddd;
+ border-radius: 10px;
+ padding: 10px;
+ margin-bottom: 20px;
+}
 
 .ui-helper-hidden {
 	display: none;
