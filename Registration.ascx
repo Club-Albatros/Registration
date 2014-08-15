@@ -49,11 +49,25 @@
 
 
 <script type="text/javascript">
- $(function () {
+ (function ($, Sys) {
+  $(document).ready(function () {
+
+   crservice = new CountryRegionService($, {
+    serverErrorText: '',
+    serverErrorWithDescriptionText: '',
+    errorBoxId: ''
+   }, <%= ModuleId %>);
+
+   setupCountryAutoComplete();
+   setRegionList();
+   setupCityAutoComplete();
+
   $('.dnnFormItem .dnnLabel').each(function () {
    var next = $(this).next();
    if (next.hasClass('dnnFormRequired'))
     $(this).find('span').addClass('dnnFormRequired');
   });
- });
+
+  }); // doc ready
+ } (jQuery, window.Sys));
 </script>

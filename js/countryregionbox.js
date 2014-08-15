@@ -1,20 +1,4 @@
-﻿(function ($, Sys) {
- $(document).ready(function () {
-
-  crservice = new CountryRegionService($, {
-   serverErrorText: '',
-   serverErrorWithDescriptionText: '',
-   errorBoxId: ''
-  }, 500);
-
-  setupCountryAutoComplete();
-  setRegionList();
-  setupCityAutoComplete();
-
- }); // doc ready
-} (jQuery, window.Sys));
-
-function CountryRegionService($, settings, mid) {
+﻿function CountryRegionService($, settings, mid) {
  var moduleId = mid;
  var baseServicepath = $.dnnSF(moduleId).getServiceRoot('Albatros/Registration');
 
@@ -81,6 +65,8 @@ function CountryRegionService($, settings, mid) {
 }
 
 function setRegionList() {
+ $('#' + dnnRegionBoxId + '_dropdown').hide();
+ $('#' + dnnRegionBoxId + '_text').show();
  if (typeof dnnRegionBoxId !== 'undefined') {
   var initVal = $('#' + dnnRegionBoxId + '_value').attr('value');
   if (typeof dnnCountryBoxId !== 'undefined') {
