@@ -21,6 +21,7 @@ Imports DotNetNuke.Web.Client.ClientResourceManagement
 Imports DotNetNuke.Security.Permissions
 Imports DotNetNuke.Entities.Modules
 Imports DotNetNuke.Entities.Modules.Actions
+Imports DotNetNuke.Services.Social.Notifications
 
 Partial Public Class Registration
  Inherits ModuleBase
@@ -116,20 +117,16 @@ Partial Public Class Registration
   AddHandler authLoginControl.UserAuthenticated, AddressOf UserAuthenticated
  End Sub
 
- Private Sub CreateOrUpdateUser()
+ Private Sub CreateOrUpdateUser(user As UserInfo)
 
-  User = profileForm.User
+  If user.UserID = -1 Then ' Create User
 
-  If User.UserID = -1 Then ' Create User
-
-   'Dim setting As Object = GetSetting(PortalId, "Security_DisplayNameFormat")
    If Not String.IsNullOrEmpty(PSettings.Security.DisplayNameFormat) Then
-    User.UpdateDisplayName(PSettings.Security.DisplayNameFormat)
+    user.UpdateDisplayName(PSettings.Security.DisplayNameFormat)
    End If
 
-   User.Membership.Approved = PortalSettings.UserRegistration = CInt(DotNetNuke.Common.Globals.PortalRegistrationType.PublicRegistration)
-   Dim user__1 As UserInfo = User
-   CreateStatus = UserController.CreateUser(user__1)
+   user.Membership.Approved = PortalSettings.UserRegistration = CInt(DotNetNuke.Common.Globals.PortalRegistrationType.PublicRegistration)
+   CreateStatus = UserController.CreateUser(user)
 
    DataCache.ClearPortalCache(PortalId, True)
 
@@ -140,16 +137,17 @@ Partial Public Class Registration
 
      'Assocate alternate Login with User and proceed with Login
      If Not [String].IsNullOrEmpty(AuthenticationType) Then
-      AuthenticationController.AddUserAuthentication(User.UserID, AuthenticationType, UserToken)
+      AuthenticationController.AddUserAuthentication(user.UserID, AuthenticationType, UserToken)
      End If
 
-     Dim strMessage As String = CompleteUserCreation(CreateStatus, user__1, True, IsRegister)
+     Dim strMessage As String = CompleteUserCreation(CreateStatus, user, True)
+     AddUserToSelectedRoles(user)
 
      If (String.IsNullOrEmpty(strMessage)) Then
-      Response.Redirect(RedirectURL, True)
+      Response.Redirect(RedirectURL, False)
      End If
     Else
-     AddLocalizedModuleMessage(UserController.GetUserCreateStatus(CreateStatus), ModuleMessage.ModuleMessageType.RedError, True)
+     DotNetNuke.UI.Skins.Skin.AddModuleMessage(Me, UserController.GetUserCreateStatus(CreateStatus), ModuleMessage.ModuleMessageType.RedError)
     End If
    Catch exc As Exception
     'Module failed to load
@@ -158,6 +156,8 @@ Partial Public Class Registration
 
   Else ' Update User
 
+   UserController.UpdateUser(PortalId, user)
+   AddUserToSelectedRoles(user)
 
   End If
 
@@ -172,14 +172,14 @@ Partial Public Class Registration
   ClientResourceManager.RegisterScript(Page, "~/Resources/Shared/scripts/dnn.jquery.tooltip.js")
   ClientResourceManager.RegisterScript(Page, "~/DesktopModules/Admin/Security/Scripts/dnn.PasswordComparer.js")
 
-  rpRoles.DataSource = Settings.RolesToShow.Values
+  rpRoles.DataSource = Settings.RolesToShow.Values.OrderBy(Function(r) r.ViewOrder)
   rpRoles.DataBind()
 
   If Me.UserInfo IsNot Nothing And Not Me.IsPostBack Then
    Dim userRoles As List(Of UserRoleInfo) = CType((New Roles.RoleController).GetUserRoles(UserInfo, True), Global.System.Collections.Generic.List(Of Global.DotNetNuke.Entities.Users.UserRoleInfo))
    For Each item As RepeaterItem In rpRoles.Items
     Dim hid As HiddenField = CType(item.FindControl("hidRoleID"), HiddenField)
-    If userRoles.Select(Function(x) x.RoleID.ToString = hid.Value).Count > 0 Then
+    If userRoles.Where(Function(x) x.RoleID.ToString = hid.Value).Count > 0 Then
      Dim chk As CheckBox = CType(item.FindControl("chkActive"), CheckBox)
      chk.Checked = True
     End If
@@ -189,25 +189,29 @@ Partial Public Class Registration
   AddHandler cancelButton.Click, AddressOf cancelButton_Click
   AddHandler registerButton.Click, AddressOf registerButton_Click
 
-  If PSettings.Registration.UseAuthProviders Then
-   Dim authSystems As List(Of AuthenticationInfo) = AuthenticationController.GetEnabledAuthenticationServices()
-   For Each authSystem As AuthenticationInfo In authSystems
-    Try
-     Dim authLoginControl As AuthenticationLoginBase = DirectCast(LoadControl("~/" + authSystem.LoginControlSrc), AuthenticationLoginBase)
-     If authSystem.AuthenticationType <> "DNN" Then
-      BindLoginControl(authLoginControl, authSystem)
-      'Check if AuthSystem is Enabled
-      If authLoginControl.Enabled AndAlso authLoginControl.SupportsRegistration Then
-       authLoginControl.Mode = AuthMode.Register
+  pnlSocialLogin.Visible = False
+  If UserInfo.UserID = -1 Then
+   If PSettings.Registration.UseAuthProviders Then
+    Dim authSystems As List(Of AuthenticationInfo) = AuthenticationController.GetEnabledAuthenticationServices()
+    For Each authSystem As AuthenticationInfo In authSystems
+     Try
+      Dim authLoginControl As AuthenticationLoginBase = DirectCast(LoadControl("~/" + authSystem.LoginControlSrc), AuthenticationLoginBase)
+      If authSystem.AuthenticationType <> "DNN" Then
+       BindLoginControl(authLoginControl, authSystem)
+       'Check if AuthSystem is Enabled
+       If authLoginControl.Enabled AndAlso authLoginControl.SupportsRegistration Then
+        authLoginControl.Mode = AuthMode.Register
 
-       'Add Login Control to List
-       _loginControls.Add(authLoginControl)
+        'Add Login Control to List
+        _loginControls.Add(authLoginControl)
+       End If
       End If
-     End If
-    Catch ex As Exception
-     Exceptions.LogException(ex)
-    End Try
-   Next
+      pnlSocialLogin.Visible = True
+     Catch ex As Exception
+      Exceptions.LogException(ex)
+     End Try
+    Next
+   End If
   End If
 
  End Sub
@@ -242,24 +246,25 @@ Partial Public Class Registration
  End Sub
 
  Private Sub cancelButton_Click(sender As Object, e As EventArgs)
-  Response.Redirect(RedirectURL, True)
+  Response.Redirect(RedirectURL, False)
  End Sub
 
  Private Sub registerButton_Click(sender As Object, e As EventArgs)
   If (PSettings.Security.UseCaptcha AndAlso ctlCaptcha.IsValid) OrElse Not PSettings.Security.UseCaptcha Then
    If profileForm.IsValid Then
-    CreateOrUpdateUser()
+    CreateOrUpdateUser(profileForm.User)
    Else
     If CreateStatus <> UserCreateStatus.AddUser Then
-     AddLocalizedModuleMessage(UserController.GetUserCreateStatus(CreateStatus), ModuleMessage.ModuleMessageType.RedError, True)
+     DotNetNuke.UI.Skins.Skin.AddModuleMessage(Me, UserController.GetUserCreateStatus(CreateStatus), ModuleMessage.ModuleMessageType.RedError)
     End If
    End If
   End If
+  Response.Redirect(RedirectURL, False)
  End Sub
 
  Private Sub UserAuthenticated(sender As Object, e As UserAuthenticatedEventArgs)
 
-  User = e.User
+  Dim User As UserInfo = e.User
 
   Select Case e.LoginStatus
 
@@ -292,18 +297,18 @@ Partial Public Class Registration
     User.Membership.Password = UserController.GeneratePassword()
 
     If Not [String].IsNullOrEmpty(User.Email) Then
-     CreateOrUpdateUser()
+     CreateOrUpdateUser(User)
     Else
-     AddLocalizedModuleMessage(LocalizeString("NoEmail"), ModuleMessage.ModuleMessageType.RedError, True)
+     DotNetNuke.UI.Skins.Skin.AddModuleMessage(Me, LocalizeString("NoEmail"), ModuleMessage.ModuleMessageType.RedError)
      For Each formItem As DnnFormItemBase In profileForm.Items
       formItem.Visible = formItem.DataField = "Email"
      Next
     End If
 
    Case UserLoginStatus.LOGIN_USERLOCKEDOUT
-    AddLocalizedModuleMessage(String.Format(Localization.GetString("UserLockedOut", LocalResourceFile), Host.AutoAccountUnlockDuration), ModuleMessage.ModuleMessageType.RedError, True)
+    DotNetNuke.UI.Skins.Skin.AddModuleMessage(Me, String.Format(Localization.GetString("UserLockedOut", LocalResourceFile), Host.AutoAccountUnlockDuration), ModuleMessage.ModuleMessageType.RedError)
    Case UserLoginStatus.LOGIN_USERNOTAPPROVED
-    AddModuleMessage(e.Message, ModuleMessage.ModuleMessageType.RedError, True)
+    DotNetNuke.UI.Skins.Skin.AddModuleMessage(Me, LocalizeString(e.Message), ModuleMessage.ModuleMessageType.RedError)
    Case Else
 
     ' user is getting logged in with an existing account
@@ -315,20 +320,202 @@ Partial Public Class Registration
 
  End Sub
 
- Private Sub Page_Load(sender As Object, e As System.EventArgs) Handles Me.Load
-
- End Sub
-
 #Region " IActionable "
  Public ReadOnly Property ModuleActions As Actions.ModuleActionCollection Implements IActionable.ModuleActions
   Get
    Dim MyActions As New Actions.ModuleActionCollection
    If Security.CanEdit Then
     MyActions.Add(GetNextActionID, Localization.GetString("ChooseFields", LocalResourceFile), ModuleActionType.EditContent, "", "", EditUrl("Fields"), False, DotNetNuke.Security.SecurityAccessLevel.Edit, True, False)
+    MyActions.Add(GetNextActionID, Localization.GetString("RoleEditor", LocalResourceFile), ModuleActionType.EditContent, "", "", EditUrl("Roles"), False, DotNetNuke.Security.SecurityAccessLevel.Edit, True, False)
    End If
    Return MyActions
   End Get
  End Property
+#End Region
+
+#Region " Private Methods "
+ Private Sub AddUserToSelectedRoles(user As UserInfo)
+
+  For Each item As RepeaterItem In rpRoles.Items
+   Dim chk As CheckBox = CType(item.FindControl("chkActive"), CheckBox)
+   Dim hid As HiddenField = CType(item.FindControl("hidRoleID"), HiddenField)
+   Dim roleId As Integer = Integer.Parse(hid.Value)
+   Dim role As Roles.RoleInfo = (New Roles.RoleController).GetRole(roleId, PortalSettings.PortalId)
+   If chk.Checked Then
+    JoinGroup(user, role)
+   Else
+    Roles.RoleController.DeleteUserRole(UserInfo, role, PortalSettings, False)
+   End If
+  Next
+
+ End Sub
+
+ Private Const MemberPendingNotification As String = "GroupMemberPendingNotification"
+ Private Const GroupModuleSharedResourcesPath As String = "~/DesktopModules/SocialGroups/App_LocalResources/SharedResources.resx"
+
+ Private Sub JoinGroup(user As UserInfo, role As Roles.RoleInfo)
+  Try
+   If user.UserID >= 0 AndAlso role.RoleID > 0 Then
+    Dim roleController As New Roles.RoleController
+    If role IsNot Nothing Then
+
+     Dim requireApproval As Boolean = False
+
+     If role.Settings.ContainsKey("ReviewMembers") Then
+      requireApproval = Convert.ToBoolean(role.Settings("ReviewMembers"))
+     End If
+
+     If role.IsPublic AndAlso Not requireApproval Then
+      roleController.AddUserRole(PortalSettings.PortalId, UserInfo.UserID, role.RoleID, Null.NullDate)
+      roleController.UpdateRole(role)
+     End If
+
+     If role.IsPublic AndAlso requireApproval Then
+      roleController.AddUserRole(PortalSettings.PortalId, UserInfo.UserID, role.RoleID, Roles.RoleStatus.Pending, False, Null.NullDate, Null.NullDate)
+      AddGroupOwnerNotification(MemberPendingNotification, TabId, ModuleId, role, UserInfo)
+     End If
+    End If
+   End If
+  Catch exc As Exception
+  End Try
+ End Sub
+
+ Friend Overridable Function AddGroupOwnerNotification(notificationTypeName As String, tabId As Integer, moduleId As Integer, group As Roles.RoleInfo, initiatingUser As UserInfo) As Notification
+  Dim notificationType As NotificationType = NotificationsController.Instance.GetNotificationType(notificationTypeName)
+
+  Dim tokenReplace As New GroupItemTokenReplace(group)
+
+  Dim subject As String = Localization.GetString(notificationTypeName & ".Subject", GroupModuleSharedResourcesPath)
+  Dim body As String = Localization.GetString(notificationTypeName & ".Body", GroupModuleSharedResourcesPath)
+  subject = subject.Replace("[DisplayName]", initiatingUser.DisplayName)
+  subject = subject.Replace("[ProfileUrl]", DotNetNuke.Common.Globals.UserProfileURL(initiatingUser.UserID))
+  subject = tokenReplace.ReplaceGroupItemTokens(subject)
+  body = body.Replace("[DisplayName]", initiatingUser.DisplayName)
+  body = body.Replace("[ProfileUrl]", DotNetNuke.Common.Globals.UserProfileURL(initiatingUser.UserID))
+  body = tokenReplace.ReplaceGroupItemTokens(body)
+  Dim roleCreator As UserInfo = UserController.GetUserById(group.PortalID, group.CreatedByUserID)
+  Dim roleOwners As New List(Of UserInfo)
+  Dim rc As New Roles.RoleController
+  For Each userInfo As UserInfo In rc.GetUsersByRoleName(group.PortalID, group.RoleName)
+   Dim userRoleInfo As DotNetNuke.Entities.Users.UserRoleInfo = rc.GetUserRole(group.PortalID, userInfo.UserID, group.RoleID)
+   If userRoleInfo.IsOwner AndAlso userRoleInfo.UserID <> group.CreatedByUserID Then
+    roleOwners.Add(UserController.GetUserById(group.PortalID, userRoleInfo.UserID))
+   End If
+  Next
+  roleOwners.Add(roleCreator)
+
+  'Need to add from sender details
+  Dim notification As New Notification() With {
+    .NotificationTypeID = notificationType.NotificationTypeId,
+    .Subject = subject,
+    .Body = body,
+    .IncludeDismissAction = True,
+    .SenderUserID = initiatingUser.UserID,
+    .Context = [String].Format("{0}:{1}:{2}:{3}", tabId, moduleId, group.RoleID, initiatingUser.UserID)
+  }
+  NotificationsController.Instance.SendNotification(notification, initiatingUser.PortalID, Nothing, roleOwners)
+
+  Return notification
+ End Function
+
+ Private Function CompleteUserCreation(createStatus As UserCreateStatus, newUser As UserInfo, notify As Boolean) As String
+
+  Dim strMessage As String = ""
+  Dim message As ModuleMessage.ModuleMessageType = ModuleMessage.ModuleMessageType.RedError
+
+  Dim register As Boolean = Not Request.IsAuthenticated
+
+  If register Then
+   'send notification to portal administrator of new user registration
+   'check the receive notification setting first, but if register type is Private, we will always send the notification email.
+   'because the user need administrators to do the approve action so that he can continue use the website.
+   If PortalSettings.EnableRegisterNotification OrElse PortalSettings.UserRegistration = CInt(DotNetNuke.Common.Globals.PortalRegistrationType.PrivateRegistration) Then
+    strMessage += DotNetNuke.Services.Mail.Mail.SendMail(newUser, DotNetNuke.Services.Mail.MessageType.UserRegistrationAdmin, PortalSettings)
+    SendAdminNotification(newUser, "NewUserRegistration")
+   End If
+
+   Dim loginStatus As UserLoginStatus = UserLoginStatus.LOGIN_FAILURE
+
+   'complete registration
+   Select Case PortalSettings.UserRegistration
+    Case CInt(DotNetNuke.Common.Globals.PortalRegistrationType.PrivateRegistration)
+     strMessage += DotNetNuke.Services.Mail.Mail.SendMail(newUser, DotNetNuke.Services.Mail.MessageType.UserRegistrationPrivate, PortalSettings)
+
+     'show a message that a portal administrator has to verify the user credentials
+     If String.IsNullOrEmpty(strMessage) Then
+      strMessage += String.Format(Localization.GetString("PrivateConfirmationMessage", Localization.SharedResourceFile), newUser.Email)
+      message = ModuleMessage.ModuleMessageType.GreenSuccess
+     End If
+     Exit Select
+    Case CInt(DotNetNuke.Common.Globals.PortalRegistrationType.PublicRegistration)
+     DotNetNuke.Services.Mail.Mail.SendMail(newUser, DotNetNuke.Services.Mail.MessageType.UserRegistrationPublic, PortalSettings)
+     UserController.UserLogin(PortalSettings.PortalId, newUser.Username, newUser.Membership.Password, "", PortalSettings.PortalName, "", loginStatus, False)
+     Exit Select
+    Case CInt(DotNetNuke.Common.Globals.PortalRegistrationType.VerifiedRegistration)
+     DotNetNuke.Services.Mail.Mail.SendMail(newUser, DotNetNuke.Services.Mail.MessageType.UserRegistrationVerified, PortalSettings)
+     UserController.UserLogin(PortalSettings.PortalId, newUser.Username, newUser.Membership.Password, "", PortalSettings.PortalName, "", loginStatus, False)
+     Exit Select
+   End Select
+   'affiliate
+   If Not Null.IsNull(newUser.AffiliateID) Then
+    Dim objAffiliates As New DotNetNuke.Services.Vendors.AffiliateController()
+    objAffiliates.UpdateAffiliateStats(newUser.AffiliateID, 0, 1)
+   End If
+   'store preferredlocale in cookie
+   Localization.SetLanguage(newUser.Profile.PreferredLocale)
+   If register AndAlso message = ModuleMessage.ModuleMessageType.RedError Then
+    DotNetNuke.UI.Skins.Skin.AddModuleMessage(Me, String.Format(Localization.GetString("SendMail.Error", Localization.SharedResourceFile), strMessage), message)
+   Else
+    DotNetNuke.UI.Skins.Skin.AddModuleMessage(Me, strMessage, message)
+   End If
+  Else
+   If notify Then
+    'Send Notification to User
+    If PortalSettings.UserRegistration = CInt(DotNetNuke.Common.Globals.PortalRegistrationType.VerifiedRegistration) Then
+     strMessage += DotNetNuke.Services.Mail.Mail.SendMail(newUser, DotNetNuke.Services.Mail.MessageType.UserRegistrationVerified, PortalSettings)
+    Else
+     strMessage += DotNetNuke.Services.Mail.Mail.SendMail(newUser, DotNetNuke.Services.Mail.MessageType.UserRegistrationPublic, PortalSettings)
+    End If
+   End If
+  End If
+
+  Return strMessage
+ End Function
+
+ Private Sub SendAdminNotification(newUser As UserInfo, notificationType As String)
+  Dim notification As New DotNetNuke.Services.Social.Notifications.Notification() With {.NotificationTypeID = DotNetNuke.Services.Social.Notifications.NotificationsController.Instance.GetNotificationType(notificationType).NotificationTypeId, .IncludeDismissAction = True, .SenderUserID = PortalSettings.AdministratorId}
+  notification.Subject = GetNotificationSubject(notificationType, newUser.Profile.PreferredLocale, newUser)
+  notification.Body = GetNotificationBody(notificationType, newUser.Profile.PreferredLocale, newUser)
+  Dim adminrole As Roles.RoleInfo = (New Roles.RoleController).GetRole(PortalSettings.AdministratorRoleId, PortalSettings.PortalId)
+  Dim roles As New List(Of Roles.RoleInfo)
+  roles.Add(adminrole)
+  DotNetNuke.Services.Social.Notifications.NotificationsController.Instance.SendNotification(notification, PortalSettings.PortalId, roles, New List(Of UserInfo)())
+ End Sub
+
+ Private Function GetNotificationBody(notificationType As String, locale As String, newUser As UserInfo) As String
+  Dim text As String = ""
+  Select Case notificationType
+   Case "NewUserRegistration"
+    text = "EMAIL_USER_REGISTRATION_ADMINISTRATOR_BODY"
+    Exit Select
+  End Select
+  Return LocalizeNotificationText(text, locale, newUser)
+ End Function
+
+ Private Function LocalizeNotificationText(text As String, locale As String, user As UserInfo) As String
+  'This method could need a custom ArrayList in future notification types. Currently it is null
+  Return Localization.GetSystemMessage(locale, PortalSettings, text, user, Localization.GlobalResourceFile, Nothing, "", PortalSettings.AdministratorId)
+ End Function
+
+ Private Function GetNotificationSubject(notificationType As String, locale As String, newUser As UserInfo) As String
+  Dim text As String = ""
+  Select Case notificationType
+   Case "NewUserRegistration"
+    text = "EMAIL_USER_REGISTRATION_ADMINISTRATOR_SUBJECT"
+    Exit Select
+  End Select
+  Return LocalizeNotificationText(text, locale, newUser)
+ End Function
 #End Region
 
 End Class

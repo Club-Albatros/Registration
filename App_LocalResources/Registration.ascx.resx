@@ -120,6 +120,12 @@
   <data name="ChooseFields.Text" xml:space="preserve">
     <value>Choose Fields</value>
   </data>
+  <data name="cmdRegister.Text" xml:space="preserve">
+    <value>Register</value>
+  </data>
+  <data name="RoleEditor.Text" xml:space="preserve">
+    <value>Edit Roles</value>
+  </data>
   <data name="secLogin.Text" xml:space="preserve">
     <value>Login</value>
   </data>
@@ -128,5 +134,8 @@
   </data>
   <data name="secRoles.Text" xml:space="preserve">
     <value>Membership</value>
+  </data>
+  <data name="secConnect.Text" xml:space="preserve">
+    <value>Connect Using</value>
   </data>
 </root>

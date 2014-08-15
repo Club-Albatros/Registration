@@ -2,7 +2,8 @@ Imports DotNetNuke.Framework
 Imports DotNetNuke.Web.Client.ClientResourceManagement
 
 Public Class ModuleBase
- Inherits DotNetNuke.Entities.Modules.UserUserControlBase
+ 'Inherits DotNetNuke.Entities.Modules.UserUserControlBase
+ Inherits DotNetNuke.Entities.Modules.PortalModuleBase
 
 #Region " Properties "
  Private _security As ContextSecurity

@@ -14,6 +14,24 @@ Option Explicit On
 Partial Public Class Registration
 
  '''<summary>
+ '''pnlSocialLogin control.
+ '''</summary>
+ '''<remarks>
+ '''Auto-generated field.
+ '''To modify move field declaration from designer file to code-behind file.
+ '''</remarks>
+ Protected WithEvents pnlSocialLogin As Global.System.Web.UI.WebControls.Panel
+
+ '''<summary>
+ '''socialLoginControls control.
+ '''</summary>
+ '''<remarks>
+ '''Auto-generated field.
+ '''To modify move field declaration from designer file to code-behind file.
+ '''</remarks>
+ Protected WithEvents socialLoginControls As Global.System.Web.UI.WebControls.PlaceHolder
+
+ '''<summary>
  '''rpRoles control.
  '''</summary>
  '''<remarks>
@@ -30,15 +48,6 @@ Partial Public Class Registration
  '''To modify move field declaration from designer file to code-behind file.
  '''</remarks>
  Protected WithEvents profileForm As Global.Albatros.DNN.Modules.Registration.DnnProfileEditor
-
- '''<summary>
- '''socialLoginControls control.
- '''</summary>
- '''<remarks>
- '''Auto-generated field.
- '''To modify move field declaration from designer file to code-behind file.
- '''</remarks>
- Protected WithEvents socialLoginControls As Global.System.Web.UI.WebControls.PlaceHolder
 
  '''<summary>
  '''captchaRow control.

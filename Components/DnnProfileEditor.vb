@@ -1,4 +1,5 @@
-﻿Imports DotNetNuke.Web.UI.WebControls
+﻿Imports System.Linq
+Imports DotNetNuke.Web.UI.WebControls
 Imports DotNetNuke.Security.Membership
 Imports DotNetNuke.Entities.Host
 Imports DotNetNuke.Entities.Profile
@@ -11,6 +12,7 @@ Imports DotNetNuke.Services
 Imports DotNetNuke.Security
 Imports DotNetNuke.Entities.Users.Membership
 Imports DotNetNuke.Entities.Users.Internal
+Imports System.Reflection
 
 <ParseChildren(True)>
 Public Class DnnProfileEditor
@@ -38,9 +40,13 @@ Public Class DnnProfileEditor
 
  Public Property SelectedRoles As String = ""
 
- Protected Shadows ReadOnly Property IsValid() As Boolean
+ Public Shadows ReadOnly Property IsValid() As Boolean
   Get
-   Return Validate()
+   If User.UserID = -1 Then
+    Return Validate()
+   Else
+    Return True
+   End If
   End Get
  End Property
 
@@ -166,6 +172,8 @@ Public Class DnnProfileEditor
 #Region " Overrides "
  Public Overrides Sub DataBind()
 
+  Me.DataSource = User
+
   ' Clear Form
   Items.Clear()
   Sections.Clear()
@@ -286,6 +294,7 @@ Public Class DnnProfileEditor
    .ResourceKey = dataField,
    .LocalResourceFile = "~/DesktopModules/Admin/Security/App_LocalResources/Profile.ascx.resx"
   }
+  AddHandler formItem.UpdateSource, AddressOf UpdateDataSourceInternal
   If Not [String].IsNullOrEmpty(regexValidator) Then
    formItem.ValidationExpression = regexValidator
   End If
@@ -297,6 +306,67 @@ Public Class DnnProfileEditor
   AddedFields.Add(dataField.ToLower)
  End Sub
 
+ Protected Function GetProperty(dataField As String, dataMember As String) As Reflection.PropertyInfo
+  Dim type As Type = DataSource.[GetType]()
+  Dim props As IList(Of Reflection.PropertyInfo) = New List(Of Reflection.PropertyInfo)(type.GetProperties(Reflection.BindingFlags.[Public] Or Reflection.BindingFlags.Instance Or Reflection.BindingFlags.[Static]))
+  Return If(Not [String].IsNullOrEmpty(dataMember), props.SingleOrDefault(Function(p) p.Name = dataMember), props.SingleOrDefault(Function(p) p.Name = dataField))
+ End Function
+
+ Private Sub UpdateDataSourceInternal(dataField As String, dataMember As String, oldValue As Object, newValue As Object)
+  If DataSource IsNot Nothing Then
+   If TypeOf DataSource Is IDictionary(Of String, String) Then
+    Dim dictionary As IDictionary(Of String, String) = TryCast(DataSource, IDictionary(Of String, String))
+    If dictionary.ContainsKey(dataField) AndAlso Not ReferenceEquals(newValue, oldValue) Then
+     dictionary(dataField) = TryCast(newValue, String)
+    End If
+   ElseIf TypeOf DataSource Is IIndexable Then
+    Dim indexer As IIndexable = TryCast(DataSource, IIndexable)
+    indexer(dataField) = newValue
+   Else
+
+    Dim type As Type = DataSource.[GetType]()
+    Dim props As IList(Of PropertyInfo) = New List(Of PropertyInfo)(type.GetProperties(BindingFlags.[Public] Or BindingFlags.Instance Or BindingFlags.[Static]))
+    Dim [Property] As PropertyInfo = If(Not [String].IsNullOrEmpty(dataMember), props.SingleOrDefault(Function(p) p.Name = dataMember), props.SingleOrDefault(Function(p) p.Name = dataField))
+
+    If [String].IsNullOrEmpty(dataMember) Then
+     If [Property] IsNot Nothing Then
+      If Not ReferenceEquals(newValue, oldValue) Then
+       If [Property].PropertyType.IsEnum Then
+        [Property].SetValue(DataSource, [Enum].Parse([Property].PropertyType, newValue.ToString()), Nothing)
+       Else
+        [Property].SetValue(DataSource, Convert.ChangeType(newValue, [Property].PropertyType), Nothing)
+       End If
+      End If
+     End If
+    Else
+     If [Property] IsNot Nothing Then
+      Dim parentValue As Object = [Property].GetValue(DataSource, Nothing)
+      If parentValue IsNot Nothing Then
+       type = [Property].PropertyType
+       props = New List(Of PropertyInfo)(type.GetProperties(BindingFlags.[Public] Or BindingFlags.Instance Or BindingFlags.[Static]))
+       Dim ChildProperty As PropertyInfo = props.SingleOrDefault(Function(p) p.Name = dataField)
+       If TypeOf parentValue Is IDictionary(Of String, String) Then
+        Dim dictionary As IDictionary(Of String, String) = TryCast(parentValue, IDictionary(Of String, String))
+        If dictionary.ContainsKey(dataField) AndAlso Not ReferenceEquals(newValue, oldValue) Then
+         dictionary(dataField) = TryCast(newValue, String)
+        End If
+       ElseIf TypeOf parentValue Is IIndexable Then
+        Dim indexer As IIndexable = TryCast(parentValue, IIndexable)
+        indexer(dataField) = newValue
+       ElseIf ChildProperty IsNot Nothing Then
+        If [Property].PropertyType.IsEnum Then
+         ChildProperty.SetValue(parentValue, [Enum].Parse(ChildProperty.PropertyType, newValue.ToString()), Nothing)
+        Else
+         ChildProperty.SetValue(parentValue, Convert.ChangeType(newValue, ChildProperty.PropertyType), Nothing)
+        End If
+       End If
+      End If
+     End If
+    End If
+   End If
+  End If
+ End Sub
+
  Private Sub AddPasswordStrengthField(section As DnnFormSection, dataField As String, dataMember As String, required As Boolean)
   If AddedFields.Contains(dataField.ToLower) Then Exit Sub
   Dim formItem As DnnFormItemBase
@@ -306,11 +376,13 @@ Public Class DnnProfileEditor
     .TextBoxCssClass = PasswordStrengthTextBoxCssClass,
     .ContainerCssClass = "password-strength-container"
    }
+   AddHandler CType(formItem, DnnFormPasswordItem).UpdateSource, AddressOf UpdateDataSourceInternal
   Else
    formItem = New DnnFormTextBoxItem() With {
     .TextMode = TextBoxMode.Password,
     .TextBoxCssClass = PasswordStrengthTextBoxCssClass
    }
+   AddHandler CType(formItem, DnnFormTextBoxItem).UpdateSource, AddressOf UpdateDataSourceInternal
   End If
 
   formItem.ID = dataField
@@ -343,6 +415,7 @@ Public Class DnnProfileEditor
    .ResourceKey = dataField,
    .LocalResourceFile = "~/DesktopModules/Admin/Security/App_LocalResources/Profile.ascx.resx"
   }
+  AddHandler formItem.UpdateSource, AddressOf UpdateDataSourceInternal
 
   If section Is Nothing Then
    Items.Add(formItem)
@@ -405,7 +478,20 @@ Public Class DnnProfileEditor
 
  End Sub
 
+ 'Private Function GetValue(fieldName As String) As String
+ ' For Each s As DnnFormSection In Sections
+ '  For Each f As DnnFormItemBase In s.Items
+ '   If f.DataField.ToLower = fieldName.ToLower Then
+ '    If TypeOf f Is DnnFormTextBoxItem Then
+ '     Return CType(f, DnnFormTextBoxItem)
+ '    End If
+ '   End If
+ '  Next
+ ' Next
+ 'End Function
+
  Private Function Validate() As Boolean
+
   CreateStatus = UserCreateStatus.AddUser
   Dim portalSecurity__1 As New PortalSecurity
 

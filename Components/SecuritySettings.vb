@@ -1,4 +1,4 @@
-﻿Imports DotNetNuke.Common.Utilities.DictionaryExtensions
+﻿Imports Albatros.DNN.Modules.Registration.DictionaryExtensions
 
 Public Class SecuritySettings
 
