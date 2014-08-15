@@ -1,0 +1,405 @@
+/******* TABLES *******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}Registration_RoleLocalization') AND type in (N'U'))
+BEGIN
+CREATE TABLE {databaseOwner}{objectQualifier}Registration_RoleLocalization(
+ [RoleId] [int] NOT NULL,
+ [Locale] [nchar](10) NOT NULL,
+ [RoleName] [nvarchar](50) NOT NULL,
+ [Description] [nvarchar](1000) NULL,
+ [IconFile] [nvarchar](100) NULL,
+ [Presentation] [nvarchar](max) NULL,
+ CONSTRAINT PK_{objectQualifier}Registration_RoleLocalization PRIMARY KEY CLUSTERED 
+(
+ [RoleId] ASC,
+ [Locale] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF)
+)
+END
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}Registration_RoleProperties') AND type in (N'U'))
+BEGIN
+CREATE TABLE {databaseOwner}{objectQualifier}Registration_RoleProperties(
+ [RoleId] [int] NOT NULL,
+ [PropertyDefinitionID] [int] NOT NULL,
+ [Required] [bit] NOT NULL,
+ CONSTRAINT PK_{objectQualifier}Registration_RoleProperties PRIMARY KEY CLUSTERED 
+(
+ [RoleId] ASC,
+ [PropertyDefinitionID] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF)
+)
+END
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}Registration_RoleSettings') AND type in (N'U'))
+BEGIN
+CREATE TABLE {databaseOwner}{objectQualifier}Registration_RoleSettings(
+ [RoleID] [int] NOT NULL,
+ [ViewOrder] [int] NOT NULL,
+ CONSTRAINT PK_{objectQualifier}Registration_RoleSettings PRIMARY KEY CLUSTERED 
+(
+ [RoleID] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF)
+)
+END
+GO
+
+/******* STRUCTURE *******/
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'{databaseOwner}FK_{objectQualifier}Registration_RoleLocalization_Roles') AND parent_object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}Registration_RoleLocalization'))
+ALTER TABLE {databaseOwner}{objectQualifier}Registration_RoleLocalization  WITH CHECK ADD  CONSTRAINT FK_{objectQualifier}Registration_RoleLocalization_Roles FOREIGN KEY([RoleId])
+REFERENCES {databaseOwner}{objectQualifier}Roles ([RoleID])
+ON DELETE CASCADE
+IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'{databaseOwner}FK_{objectQualifier}Registration_RoleLocalization_Roles') AND parent_object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}Registration_RoleLocalization'))
+ALTER TABLE {databaseOwner}{objectQualifier}Registration_RoleLocalization CHECK CONSTRAINT FK_{objectQualifier}Registration_RoleLocalization_Roles
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'{databaseOwner}FK_{objectQualifier}Registration_RoleProperties_ProfilePropertyDefinition') AND parent_object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}Registration_RoleProperties'))
+ALTER TABLE {databaseOwner}{objectQualifier}Registration_RoleProperties  WITH CHECK ADD  CONSTRAINT FK_{objectQualifier}Registration_RoleProperties_ProfilePropertyDefinition FOREIGN KEY([PropertyDefinitionID])
+REFERENCES {databaseOwner}{objectQualifier}ProfilePropertyDefinition ([PropertyDefinitionID])
+IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'{databaseOwner}FK_{objectQualifier}Registration_RoleProperties_ProfilePropertyDefinition') AND parent_object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}Registration_RoleProperties'))
+ALTER TABLE {databaseOwner}{objectQualifier}Registration_RoleProperties CHECK CONSTRAINT FK_{objectQualifier}Registration_RoleProperties_ProfilePropertyDefinition
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'{databaseOwner}FK_{objectQualifier}Registration_RoleProperties_Roles') AND parent_object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}Registration_RoleProperties'))
+ALTER TABLE {databaseOwner}{objectQualifier}Registration_RoleProperties  WITH CHECK ADD  CONSTRAINT FK_{objectQualifier}Registration_RoleProperties_Roles FOREIGN KEY([RoleId])
+REFERENCES {databaseOwner}{objectQualifier}Roles ([RoleID])
+ON DELETE CASCADE
+IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'{databaseOwner}FK_{objectQualifier}Registration_RoleProperties_Roles') AND parent_object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}Registration_RoleProperties'))
+ALTER TABLE {databaseOwner}{objectQualifier}Registration_RoleProperties CHECK CONSTRAINT FK_{objectQualifier}Registration_RoleProperties_Roles
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'{databaseOwner}FK_{objectQualifier}Registration_RoleSettings_Roles') AND parent_object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}Registration_RoleSettings'))
+ALTER TABLE {databaseOwner}{objectQualifier}Registration_RoleSettings  WITH CHECK ADD  CONSTRAINT FK_{objectQualifier}Registration_RoleSettings_Roles FOREIGN KEY([RoleID])
+REFERENCES {databaseOwner}{objectQualifier}Roles ([RoleID])
+ON DELETE CASCADE
+IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'{databaseOwner}FK_{objectQualifier}Registration_RoleSettings_Roles') AND parent_object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}Registration_RoleSettings'))
+ALTER TABLE {databaseOwner}{objectQualifier}Registration_RoleSettings CHECK CONSTRAINT FK_{objectQualifier}Registration_RoleSettings_Roles
+GO
+
+/******* TRIGGERS *******/
+/******* VIEWS *******/
+IF  EXISTS (SELECT * FROM sys.views WHERE object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}vw_Registration_Roles'))
+DROP VIEW {databaseOwner}{objectQualifier}vw_Registration_Roles
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE VIEW {databaseOwner}{objectQualifier}vw_Registration_Roles
+AS
+SELECT
+ r.AutoAssignment,
+ r.BillingFrequency,
+ r.BillingPeriod,
+ r.CreatedByUserID,
+ r.CreatedOnDate,
+ ISNULL(rl.Description, r.Description) Description,
+ ISNULL(rl.IconFile, r.IconFile) IconFile,
+ r.IsPublic,
+ r.IsSystemRole,
+ r.LastModifiedByUserID,
+ r.LastModifiedOnDate,
+ r.PortalID,
+ r.RoleGroupID,
+ r.RoleID,
+ ISNULL(rl.RoleName, r.RoleName) RoleName,
+ r.RSVPCode,
+ r.SecurityMode,
+ r.ServiceFee,
+ r.TrialFee,
+ r.TrialFrequency,
+ r.TrialPeriod,
+ rl.Locale,
+ rl.Presentation,
+ ISNULL(rs.ViewOrder, 0) ViewOrder,
+ (SELECT COUNT(*) FROM {databaseOwner}{objectQualifier}UserRoles U WHERE U.RoleID = R.RoleID) AS UserCount
+FROM {databaseOwner}{objectQualifier}Roles r
+ LEFT JOIN {databaseOwner}{objectQualifier}Registration_RoleSettings rs ON r.RoleID=rs.RoleId
+ LEFT JOIN {databaseOwner}{objectQualifier}Registration_RoleLocalization rl ON r.RoleID=rl.RoleId
+GO
+
+/******* FUNCTIONS *******/
+/******* SPROCS *******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}Registration_GetProfileProperties') AND type in (N'P', N'PC'))
+DROP PROCEDURE {databaseOwner}{objectQualifier}Registration_GetProfileProperties
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Registration_GetProfileProperties
+ @PortalId INT,
+ @Roles VARCHAR(300)
+AS
+SELECT ppd.[PropertyDefinitionID]
+      ,ppd.[PortalID]
+      ,ppd.[ModuleDefID]
+      ,ppd.[Deleted]
+      ,ppd.[DataType]
+      ,ppd.[DefaultValue]
+      ,ppd.[PropertyCategory]
+      ,ppd.[PropertyName]
+      ,ppd.[Length]
+      ,ISNULL(selected.[Required],ppd.[Required]) [Required]
+      ,ppd.[ValidationExpression]
+      ,ppd.[ViewOrder]
+      ,ppd.[Visible]
+      ,ppd.[CreatedByUserID]
+      ,ppd.[CreatedOnDate]
+      ,ppd.[LastModifiedByUserID]
+      ,ppd.[LastModifiedOnDate]
+      ,ppd.[DefaultVisibility]
+      ,ppd.[ReadOnly]
+FROM {databaseOwner}{objectQualifier}ProfilePropertyDefinition ppd
+ LEFT JOIN
+ (SELECT
+   rp.PropertyDefinitionID,
+   MAX(CASE WHEN rp.Required=1 THEN 1 ELSE 0 END) Required
+  FROM {databaseOwner}{objectQualifier}Registration_RoleProperties rp
+   INNER JOIN {databaseOwner}{objectQualifier}SplitDelimitedIDs(@Roles,';') r ON r.RecordID=rp.RoleId
+  GROUP BY rp.PropertyDefinitionID) selected ON selected.PropertyDefinitionID=ppd.PropertyDefinitionID
+WHERE ppd.PortalID=@PortalId
+ AND (selected.PropertyDefinitionID IS NOT NULL OR ppd.Required=1)
+ AND (ppd.Deleted=0)
+ORDER BY
+ ppd.ViewOrder
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}Registration_GetRoleLocalizations') AND type in (N'P', N'PC'))
+DROP PROCEDURE {databaseOwner}{objectQualifier}Registration_GetRoleLocalizations
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Registration_GetRoleLocalizations
+ @PortalId INT,
+ @RoleId INT
+AS
+SELECT
+ rl.Description,
+ rl.IconFile,
+ l.CultureCode AS Locale,
+ rl.RoleId,
+ rl.RoleName,
+ rl.Presentation
+FROM {databaseOwner}{objectQualifier}Languages l
+ INNER JOIN {databaseOwner}{objectQualifier}PortalLanguages pl ON pl.LanguageID = l.LanguageID AND pl.PortalID = @PortalId
+ LEFT JOIN {databaseOwner}{objectQualifier}Registration_RoleLocalization rl ON rl.Locale = l.CultureCode AND RoleId = @RoleId
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}Registration_GetRolesByPortalId') AND type in (N'P', N'PC'))
+DROP PROCEDURE {databaseOwner}{objectQualifier}Registration_GetRolesByPortalId
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Registration_GetRolesByPortalId
+ @PortalId INT,
+ @Locale VARCHAR(10)
+AS
+SELECT
+ *
+FROM {databaseOwner}{objectQualifier}vw_Registration_Roles
+WHERE
+ PortalId=@PortalId
+ AND Locale=@Locale OR Locale IS NULL
+ORDER BY
+ ViewOrder
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}Registration_GetRolesPropertiesByPortalId') AND type in (N'P', N'PC'))
+DROP PROCEDURE {databaseOwner}{objectQualifier}Registration_GetRolesPropertiesByPortalId
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Registration_GetRolesPropertiesByPortalId
+ @PortalId INT
+AS
+SELECT
+ rp.*
+FROM {databaseOwner}{objectQualifier}Registration_RoleProperties rp
+ INNER JOIN {databaseOwner}{objectQualifier}Roles r ON r.RoleID=rp.RoleId
+ INNER JOIN {databaseOwner}{objectQualifier}ProfilePropertyDefinition ppd ON ppd.PropertyDefinitionID=rp.PropertyDefinitionID
+WHERE
+ r.PortalId=@PortalId
+ AND ppd.PortalID=@PortalId
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}Registration_GetSiblingRegions') AND type in (N'P', N'PC'))
+DROP PROCEDURE {databaseOwner}{objectQualifier}Registration_GetSiblingRegions
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Registration_GetSiblingRegions
+ @PortalId INT,
+ @RegionKey NVARCHAR(50)
+AS
+SELECT
+ l.*
+FROM {databaseOwner}{objectQualifier}vw_Lists l
+ INNER JOIN {databaseOwner}{objectQualifier}vw_Lists reg ON reg.ParentKey=l.ParentKey
+WHERE 
+ reg.Value=@RegionKey
+ AND reg.PortalID=@PortalId
+ AND l.PortalID=@PortalId
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}Registration_ListProperties') AND type in (N'P', N'PC'))
+DROP PROCEDURE {databaseOwner}{objectQualifier}Registration_ListProperties
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Registration_ListProperties
+ @PortalId INT,
+ @PropertyName NVARCHAR(50),
+ @SearchString NVARCHAR(100)
+AS
+SELECT DISTINCT
+ up.PropertyValue
+FROM
+ {databaseOwner}{objectQualifier}UserProfile up
+ INNER JOIN {databaseOwner}{objectQualifier}ProfilePropertyDefinition ppd ON ppd.PropertyDefinitionID = up.PropertyDefinitionID
+WHERE
+ ppd.PortalID = @PortalId
+ AND ppd.PropertyName = @PropertyName
+ AND up.PropertyValue LIKE '%' + @SearchString + '%'
+ AND up.PropertyValue IS NOT NULL
+ORDER BY
+ up.PropertyValue
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}Registration_RemoveRoleLocalizations') AND type in (N'P', N'PC'))
+DROP PROCEDURE {databaseOwner}{objectQualifier}Registration_RemoveRoleLocalizations
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Registration_RemoveRoleLocalizations
+ @RoleId INT
+AS
+DELETE FROM
+ {databaseOwner}{objectQualifier}Registration_RoleLocalization
+WHERE
+ RoleId=@RoleId
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}Registration_ReorderRoles') AND type in (N'P', N'PC'))
+DROP PROCEDURE {databaseOwner}{objectQualifier}Registration_ReorderRoles
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Registration_ReorderRoles
+ @PortalId INT,
+ @RoleOrder VARCHAR(300)
+AS
+UPDATE {databaseOwner}{objectQualifier}Registration_RoleSettings
+SET ViewOrder = ord.RowNumber
+FROM {databaseOwner}{objectQualifier}Registration_RoleSettings rs
+ INNER JOIN (SELECT RecordID,
+                    ROW_NUMBER() OVER(ORDER BY (SELECT 0)) AS RowNumber
+             FROM {databaseOwner}{objectQualifier}SplitDelimitedIDs(@RoleOrder, '&')) ord ON ord.RecordID = rs.RoleID
+INSERT INTO {databaseOwner}{objectQualifier}Registration_RoleSettings
+ (RoleID, ViewOrder)
+SELECT RecordID,
+       ROW_NUMBER() OVER(ORDER BY (SELECT 0)) AS RowNumber
+FROM {databaseOwner}{objectQualifier}SplitDelimitedIDs(@RoleOrder, '&')
+WHERE NOT EXISTS(SELECT * FROM {databaseOwner}{objectQualifier}Registration_RoleSettings WHERE RoleID = RecordID)
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}Registration_SetRoleLocalization') AND type in (N'P', N'PC'))
+DROP PROCEDURE {databaseOwner}{objectQualifier}Registration_SetRoleLocalization
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Registration_SetRoleLocalization
+ @Description NVARCHAR (1000), 
+ @IconFile NVARCHAR (100), 
+ @Locale NCHAR (10), 
+ @Presentation NVARCHAR (MAX), 
+ @RoleId INT, 
+ @RoleName NVARCHAR (50)
+AS
+IF NOT EXISTS(SELECT * FROM {databaseOwner}{objectQualifier}Registration_RoleLocalization
+  WHERE Locale=@Locale AND RoleId=@RoleId)
+INSERT INTO {databaseOwner}{objectQualifier}Registration_RoleLocalization (
+ [Description],
+ [IconFile],
+ [Locale],
+ [Presentation],
+ [RoleId],
+ [RoleName])
+VALUES (
+ @Description,
+ @IconFile,
+ @Locale,
+ @Presentation,
+ @RoleId,
+ @RoleName)
+ELSE
+UPDATE {databaseOwner}{objectQualifier}Registration_RoleLocalization SET
+ [Description] = @Description,
+ [IconFile] = @IconFile,
+ [Presentation] = @Presentation,
+ [RoleName] = @RoleName
+WHERE
+ [RoleId] = @RoleId
+ AND [Locale] = @Locale
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}Registration_SetRoleProperty') AND type in (N'P', N'PC'))
+DROP PROCEDURE {databaseOwner}{objectQualifier}Registration_SetRoleProperty
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Registration_SetRoleProperty
+ @PropertyDefinitionID INT,
+ @RoleId INT,
+ @Required BIT,
+ @Remove BIT
+AS
+DELETE FROM {databaseOwner}{objectQualifier}Registration_RoleProperties
+WHERE PropertyDefinitionID=@PropertyDefinitionID
+ AND RoleId=@RoleId;
+IF @Remove=0
+ INSERT INTO {databaseOwner}{objectQualifier}Registration_RoleProperties
+  (PropertyDefinitionID, RoleId, [Required])
+ VALUES
+  (@PropertyDefinitionID, @RoleId, @Required)
+GO
+
