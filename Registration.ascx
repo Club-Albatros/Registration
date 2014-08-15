@@ -15,6 +15,7 @@
 </div>
 </asp:Panel>
 
+<asp:Panel runat="server" ID="pnlRoles">
 <div class="dnnForm dnnRegistrationForm">
 <h2 id="H1" class="dnnFormSectionHead">
  <a href="#" class="dnnSectionExpanded">
@@ -31,6 +32,7 @@
   </ItemTemplate>
  </asp:Repeater>
 </fieldset>
+</asp:Panel>
 
  <div class="dnnFormItem dnnClear">
   <ar:DnnProfileEditor runat="server" id="profileForm" />

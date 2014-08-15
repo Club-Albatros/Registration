@@ -175,6 +175,7 @@ Partial Public Class Registration
   rpRoles.DataSource = Settings.RolesToShow.Values.OrderBy(Function(r) r.ViewOrder)
   rpRoles.DataBind()
 
+  pnlRoles.Visible = False
   If Me.UserInfo IsNot Nothing And Not Me.IsPostBack Then
    Dim userRoles As List(Of UserRoleInfo) = CType((New Roles.RoleController).GetUserRoles(UserInfo, True), Global.System.Collections.Generic.List(Of Global.DotNetNuke.Entities.Users.UserRoleInfo))
    For Each item As RepeaterItem In rpRoles.Items
@@ -183,6 +184,7 @@ Partial Public Class Registration
      Dim chk As CheckBox = CType(item.FindControl("chkActive"), CheckBox)
      chk.Checked = True
     End If
+    pnlRoles.Visible = True
    Next
   End If
 

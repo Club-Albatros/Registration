@@ -32,6 +32,15 @@ Partial Public Class Registration
  Protected WithEvents socialLoginControls As Global.System.Web.UI.WebControls.PlaceHolder
 
  '''<summary>
+ '''pnlRoles control.
+ '''</summary>
+ '''<remarks>
+ '''Auto-generated field.
+ '''To modify move field declaration from designer file to code-behind file.
+ '''</remarks>
+ Protected WithEvents pnlRoles As Global.System.Web.UI.WebControls.Panel
+
+ '''<summary>
  '''rpRoles control.
  '''</summary>
  '''<remarks>
