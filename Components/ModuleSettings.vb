@@ -2,6 +2,7 @@ Imports System.Linq
 Imports DotNetNuke.Entities.Modules
 Imports DotNetNuke.Common.Utilities.DictionaryExtensions
 Imports DotNetNuke.Security.Roles
+Imports Albatros.DNN.Modules.Registration.Entities.Roles
 
 Public Class ModuleSettings
 
@@ -11,15 +12,15 @@ Public Class ModuleSettings
  Private Property Settings As Hashtable
 
  Private _rolesToShow As String = ""
- Private _rolesToShowBuff As Dictionary(Of Integer, RoleInfo)
- Public Property RolesToShow() As Dictionary(Of Integer, RoleInfo)
+ Private _rolesToShowBuff As Dictionary(Of Integer, RegistrationRoleInfo)
+ Public Property RolesToShow() As Dictionary(Of Integer, RegistrationRoleInfo)
   Get
    If _rolesToShowBuff Is Nothing Then
-    _rolesToShowBuff = Globals.GetRoleDictionary(PortalId, _rolesToShow)
+    _rolesToShowBuff = Globals.GetRoleDictionary(PortalId, _rolesToShow, Threading.Thread.CurrentThread.CurrentCulture.Name)
    End If
    Return _rolesToShowBuff
   End Get
-  Set(ByVal value As Dictionary(Of Integer, RoleInfo))
+  Set(ByVal value As Dictionary(Of Integer, RegistrationRoleInfo))
    _rolesToShowBuff = value
    _rolesToShow = String.Join(";", _rolesToShowBuff.Select(Function(x) x.Value.RoleID.ToString).ToArray)
   End Set
@@ -60,6 +61,10 @@ Public Class ModuleSettings
   Return res
 
  End Function
+
+ Public Sub ClearCache()
+  DotNetNuke.Common.Utilities.DataCache.ClearCache(CacheKey(ModuleId))
+ End Sub
 
  Public Shared Function CacheKey(moduleId As Integer) As String
   Return String.Format("SettingsModule{0}", moduleId)

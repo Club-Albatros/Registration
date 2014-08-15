@@ -52,7 +52,7 @@ Public Class Settings
     res.Add(itm.Value)
    End If
   Next
-  Settings.RolesToShow = Globals.GetRoleDictionary(PortalId, String.Join(";", res))
+  Settings.RolesToShow = Globals.GetRoleDictionary(PortalId, String.Join(";", res), Threading.Thread.CurrentThread.CurrentCulture.Name)
   Settings.SaveSettings()
 
  End Sub
