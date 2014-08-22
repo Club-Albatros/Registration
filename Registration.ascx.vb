@@ -22,6 +22,7 @@ Imports DotNetNuke.Security.Permissions
 Imports DotNetNuke.Entities.Modules
 Imports DotNetNuke.Entities.Modules.Actions
 Imports DotNetNuke.Services.Social.Notifications
+Imports ClientDependency.Core.StringExtensions
 
 Partial Public Class Registration
  Inherits ModuleBase
@@ -34,6 +35,11 @@ Partial Public Class Registration
  Private AddedFields As New List(Of String)
 
 #Region "Protected Properties"
+ Private ReadOnly Property VerificationKey As String
+  Get
+   Return (Session.SessionID & DotNetNuke.Entities.Host.Host.GUID.ToString).GenerateMd5
+  End Get
+ End Property
 
  Protected Property AuthenticationType() As String
   Get
@@ -245,6 +251,8 @@ Partial Public Class Registration
   profileForm.SelectedRoles = String.Join(";", roles)
   profileForm.DataBind()
 
+  hidVerToken.Value = VerificationKey
+
  End Sub
 
  Private Sub cancelButton_Click(sender As Object, e As EventArgs)
@@ -252,6 +260,7 @@ Partial Public Class Registration
  End Sub
 
  Private Sub registerButton_Click(sender As Object, e As EventArgs)
+  If hidVerToken.Value <> VerificationKey Then Exit Sub
   If (PSettings.Security.UseCaptcha AndAlso ctlCaptcha.IsValid) OrElse Not PSettings.Security.UseCaptcha Then
    If profileForm.IsValid Then
     CreateOrUpdateUser(profileForm.User)

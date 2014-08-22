@@ -111,4 +111,13 @@ Partial Public Class Registration
  '''To modify move field declaration from designer file to code-behind file.
  '''</remarks>
  Protected WithEvents cancelButton As Global.System.Web.UI.WebControls.LinkButton
+
+ '''<summary>
+ '''hidVerToken control.
+ '''</summary>
+ '''<remarks>
+ '''Auto-generated field.
+ '''To modify move field declaration from designer file to code-behind file.
+ '''</remarks>
+ Protected WithEvents hidVerToken As Global.System.Web.UI.WebControls.HiddenField
 End Class

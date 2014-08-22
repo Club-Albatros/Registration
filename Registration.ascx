@@ -47,6 +47,7 @@
  </ul>
 </div>
 
+<asp:HiddenField runat="server" ID="hidVerToken" />
 
 <script type="text/javascript">
  (function ($, Sys) {
