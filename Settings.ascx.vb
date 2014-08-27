@@ -41,6 +41,7 @@ Public Class Settings
   For Each itm As ListItem In cblRoles.Items
    itm.Selected = Settings.RolesToShow.ContainsKey(Integer.Parse(itm.Value))
   Next
+  chkMultiSelect.Checked = Settings.MultiSelect
 
  End Sub
 
@@ -53,6 +54,7 @@ Public Class Settings
    End If
   Next
   Settings.RolesToShow = Globals.GetRoleDictionary(PortalId, String.Join(";", res), Threading.Thread.CurrentThread.CurrentCulture.Name)
+  Settings.MultiSelect = chkMultiSelect.Checked
   Settings.SaveSettings()
 
  End Sub

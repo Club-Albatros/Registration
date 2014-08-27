@@ -25,6 +25,7 @@
   <ItemTemplate>
    <div class="ar_rs">
     <asp:CheckBox runat="server" ID="chkActive" AutoPostBack="true" />
+    <asp:RadioButton runat="server" ID="rdoActive" AutoPostBack="true" />
     <div class="ar_rs_name"><%# Eval("RoleName") %></div>
     <div class="ar_rs_presentation"><%# Eval("Presentation")%></div>
    </div>
@@ -68,6 +69,11 @@
    var next = $(this).next();
    if (next.hasClass('dnnFormRequired'))
     $(this).find('span').addClass('dnnFormRequired');
+  });
+
+  $('.ar_rs input[type="radio"]').click(function() {
+   $('.ar_rs input[type="radio"]').prop("checked", false);
+   $(this).prop("checked", true);
   });
 
   }); // doc ready

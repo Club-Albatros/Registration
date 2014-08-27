@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="plMultiSelect.Help" xml:space="preserve">
+    <value>If selected users can select multiple roles when registering. If unchecked then they can only select one.</value>
+  </data>
+  <data name="plMultiSelect.Text" xml:space="preserve">
+    <value>Multi Select</value>
+  </data>
   <data name="plRoles.Help" xml:space="preserve">
     <value>Select the roles to show to which the user can subscribe during registration</value>
   </data>

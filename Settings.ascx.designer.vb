@@ -14,6 +14,24 @@ Option Explicit On
 Partial Public Class Settings
 
  '''<summary>
+ '''plMultiSelect control.
+ '''</summary>
+ '''<remarks>
+ '''Auto-generated field.
+ '''To modify move field declaration from designer file to code-behind file.
+ '''</remarks>
+ Protected WithEvents plMultiSelect As Global.System.Web.UI.UserControl
+
+ '''<summary>
+ '''chkMultiSelect control.
+ '''</summary>
+ '''<remarks>
+ '''Auto-generated field.
+ '''To modify move field declaration from designer file to code-behind file.
+ '''</remarks>
+ Protected WithEvents chkMultiSelect As Global.System.Web.UI.WebControls.CheckBox
+
+ '''<summary>
  '''plRoles control.
  '''</summary>
  '''<remarks>

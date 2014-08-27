@@ -23,6 +23,7 @@ Imports DotNetNuke.Entities.Modules
 Imports DotNetNuke.Entities.Modules.Actions
 Imports DotNetNuke.Services.Social.Notifications
 Imports ClientDependency.Core.StringExtensions
+Imports Albatros.DNN.Modules.Registration.Entities.Roles
 
 Partial Public Class Registration
  Inherits ModuleBase
@@ -34,7 +35,7 @@ Partial Public Class Registration
  Private ReadOnly _loginControls As New List(Of AuthenticationLoginBase)()
  Private AddedFields As New List(Of String)
 
-#Region "Protected Properties"
+#Region " Protected Properties "
  Private ReadOnly Property VerificationKey As String
   Get
    Return (Session.SessionID & DotNetNuke.Entities.Host.Host.GUID.ToString).GenerateMd5
@@ -119,66 +120,8 @@ Partial Public Class Registration
 
 #End Region
 
- Private Sub BindLoginControl(authLoginControl As AuthenticationLoginBase, authSystem As AuthenticationInfo)
-  'set the control ID to the resource file name ( ie. controlname.ascx = controlname )
-  'this is necessary for the Localization in PageBase
-  authLoginControl.AuthenticationType = authSystem.AuthenticationType
-  authLoginControl.ID = IO.Path.GetFileNameWithoutExtension(authSystem.LoginControlSrc) & "_" & Convert.ToString(authSystem.AuthenticationType)
-  authLoginControl.LocalResourceFile = (Convert.ToString(authLoginControl.TemplateSourceDirectory) & "/") + Localization.LocalResourceDirectory & "/" & IO.Path.GetFileNameWithoutExtension(authSystem.LoginControlSrc)
-  authLoginControl.RedirectURL = RedirectURL
-  authLoginControl.ModuleConfiguration = ModuleConfiguration
-
-  AddHandler authLoginControl.UserAuthenticated, AddressOf UserAuthenticated
- End Sub
-
- Private Sub CreateOrUpdateUser(user As UserInfo)
-
-  If user.UserID = -1 Then ' Create User
-
-   If Not String.IsNullOrEmpty(PSettings.Security.DisplayNameFormat) Then
-    user.UpdateDisplayName(PSettings.Security.DisplayNameFormat)
-   End If
-
-   user.Membership.Approved = PortalSettings.UserRegistration = CInt(DotNetNuke.Common.Globals.PortalRegistrationType.PublicRegistration)
-   CreateStatus = UserController.CreateUser(user)
-
-   DataCache.ClearPortalCache(PortalId, True)
-
-   Try
-    If CreateStatus = UserCreateStatus.Success Then
-     'hide the succesful captcha
-     captchaRow.Visible = False
-
-     'Assocate alternate Login with User and proceed with Login
-     If Not [String].IsNullOrEmpty(AuthenticationType) Then
-      AuthenticationController.AddUserAuthentication(user.UserID, AuthenticationType, UserToken)
-     End If
-
-     Dim strMessage As String = CompleteUserCreation(CreateStatus, user, True)
-     AddUserToSelectedRoles(user)
-
-     If (String.IsNullOrEmpty(strMessage)) Then
-      Response.Redirect(RedirectURL, False)
-     End If
-    Else
-     DotNetNuke.UI.Skins.Skin.AddModuleMessage(Me, UserController.GetUserCreateStatus(CreateStatus), ModuleMessage.ModuleMessageType.RedError)
-    End If
-   Catch exc As Exception
-    'Module failed to load
-    Exceptions.ProcessModuleLoadException(Me, exc)
-   End Try
-
-  Else ' Update User
-
-   UserController.UpdateUser(PortalId, user)
-   AddUserToSelectedRoles(user)
-
-  End If
-
- End Sub
-
- Protected Overrides Sub OnInit(e As EventArgs)
-  MyBase.OnInit(e)
+#Region " Page Events "
+ Private Sub Page_Init(sender As Object, e As System.EventArgs) Handles Me.Init
 
   jQuery.RequestDnnPluginsRegistration()
 
@@ -188,19 +131,7 @@ Partial Public Class Registration
 
   rpRoles.DataSource = Settings.RolesToShow.Values.OrderBy(Function(r) r.ViewOrder)
   rpRoles.DataBind()
-
-  pnlRoles.Visible = False
-  If Me.UserInfo IsNot Nothing And Not Me.IsPostBack Then
-   Dim userRoles As List(Of UserRoleInfo) = CType((New Roles.RoleController).GetUserRoles(UserInfo, True), Global.System.Collections.Generic.List(Of Global.DotNetNuke.Entities.Users.UserRoleInfo))
-   For Each item As RepeaterItem In rpRoles.Items
-    Dim hid As HiddenField = CType(item.FindControl("hidRoleID"), HiddenField)
-    If userRoles.Where(Function(x) x.RoleID.ToString = hid.Value).Count > 0 Then
-     Dim chk As CheckBox = CType(item.FindControl("chkActive"), CheckBox)
-     chk.Checked = True
-    End If
-    pnlRoles.Visible = True
-   Next
-  End If
+  pnlRoles.Visible = rpRoles.Items.Count > 0
 
   pnlSocialLogin.Visible = False
   If UserInfo.UserID = -1 Then
@@ -234,8 +165,7 @@ Partial Public Class Registration
 
  End Sub
 
- Protected Overrides Sub OnLoad(e As EventArgs)
-  MyBase.OnLoad(e)
+ Private Sub Page_Load(sender As Object, e As System.EventArgs) Handles Me.Load
 
   If PSettings.Security.UseCaptcha Then
    captchaRow.Visible = True
@@ -249,10 +179,17 @@ Partial Public Class Registration
    Next
   End If
 
+  hidVerToken.Value = VerificationKey
+
   Dim roles As New List(Of String)
   For Each item As RepeaterItem In rpRoles.Items
-   Dim chk As CheckBox = CType(item.FindControl("chkActive"), CheckBox)
-   If chk.Checked Then
+   Dim selected As Boolean = False
+   If Settings.MultiSelect Then
+    selected = CType(item.FindControl("chkActive"), CheckBox).Checked
+   Else
+    selected = CType(item.FindControl("rdoActive"), RadioButton).Checked
+   End If
+   If selected Then
     Dim hid As HiddenField = CType(item.FindControl("hidRoleID"), HiddenField)
     roles.Add(hid.Value)
    End If
@@ -261,7 +198,28 @@ Partial Public Class Registration
   profileForm.SelectedRoles = String.Join(";", roles)
   profileForm.DataBind()
 
-  hidVerToken.Value = VerificationKey
+ End Sub
+
+ Private Sub Page_PreRender(sender As Object, e As System.EventArgs) Handles Me.PreRender
+ End Sub
+#End Region
+
+#Region " Control Handlers "
+ Private Sub rpRoles_ItemDataBound(sender As Object, e As System.Web.UI.WebControls.RepeaterItemEventArgs) Handles rpRoles.ItemDataBound
+
+  Dim chk As CheckBox = CType(e.Item.FindControl("chkActive"), CheckBox)
+  Dim opt As RadioButton = CType(e.Item.FindControl("rdoActive"), RadioButton)
+  Dim role As RegistrationRoleInfo = CType(e.Item.DataItem, RegistrationRoleInfo)
+
+  If Me.UserInfo IsNot Nothing And Not Me.IsPostBack Then
+   Dim userRoles As List(Of UserRoleInfo) = CType((New Roles.RoleController).GetUserRoles(UserInfo, True), Global.System.Collections.Generic.List(Of Global.DotNetNuke.Entities.Users.UserRoleInfo))
+   If userRoles.Where(Function(x) x.RoleID = role.RoleID).Count > 0 Then
+    chk.Checked = True
+    opt.Checked = True
+   End If
+  End If
+  chk.Visible = Settings.MultiSelect
+  opt.Visible = Not Settings.MultiSelect
 
  End Sub
 
@@ -280,6 +238,20 @@ Partial Public Class Registration
 
  Private Sub cmdUpdate_Click(sender As Object, e As System.EventArgs) Handles cmdUpdate.Click
   RegisterOrUpdateUser()
+ End Sub
+#End Region
+
+#Region " External Authentication Logic "
+ Private Sub BindLoginControl(authLoginControl As AuthenticationLoginBase, authSystem As AuthenticationInfo)
+  'set the control ID to the resource file name ( ie. controlname.ascx = controlname )
+  'this is necessary for the Localization in PageBase
+  authLoginControl.AuthenticationType = authSystem.AuthenticationType
+  authLoginControl.ID = IO.Path.GetFileNameWithoutExtension(authSystem.LoginControlSrc) & "_" & Convert.ToString(authSystem.AuthenticationType)
+  authLoginControl.LocalResourceFile = (Convert.ToString(authLoginControl.TemplateSourceDirectory) & "/") + Localization.LocalResourceDirectory & "/" & IO.Path.GetFileNameWithoutExtension(authSystem.LoginControlSrc)
+  authLoginControl.RedirectURL = RedirectURL
+  authLoginControl.ModuleConfiguration = ModuleConfiguration
+
+  AddHandler authLoginControl.UserAuthenticated, AddressOf UserAuthenticated
  End Sub
 
  Private Sub UserAuthenticated(sender As Object, e As UserAuthenticatedEventArgs)
@@ -339,21 +311,55 @@ Partial Public Class Registration
   profileForm.DataBind()
 
  End Sub
-
-#Region " IActionable "
- Public ReadOnly Property ModuleActions As Actions.ModuleActionCollection Implements IActionable.ModuleActions
-  Get
-   Dim MyActions As New Actions.ModuleActionCollection
-   If Security.CanEdit Then
-    MyActions.Add(GetNextActionID, Localization.GetString("ChooseFields", LocalResourceFile), ModuleActionType.EditContent, "", "", EditUrl("Fields"), False, DotNetNuke.Security.SecurityAccessLevel.Edit, True, False)
-    MyActions.Add(GetNextActionID, Localization.GetString("RoleEditor", LocalResourceFile), ModuleActionType.EditContent, "", "", EditUrl("Roles"), False, DotNetNuke.Security.SecurityAccessLevel.Edit, True, False)
-   End If
-   Return MyActions
-  End Get
- End Property
 #End Region
 
-#Region " Private Methods "
+#Region " User Creation Logic "
+ Private Sub CreateOrUpdateUser(user As UserInfo)
+
+  If user.UserID = -1 Then ' Create User
+
+   If Not String.IsNullOrEmpty(PSettings.Security.DisplayNameFormat) Then
+    user.UpdateDisplayName(PSettings.Security.DisplayNameFormat)
+   End If
+
+   user.Membership.Approved = PortalSettings.UserRegistration = CInt(DotNetNuke.Common.Globals.PortalRegistrationType.PublicRegistration)
+   CreateStatus = UserController.CreateUser(user)
+
+   DataCache.ClearPortalCache(PortalId, True)
+
+   Try
+    If CreateStatus = UserCreateStatus.Success Then
+     'hide the succesful captcha
+     captchaRow.Visible = False
+
+     'Assocate alternate Login with User and proceed with Login
+     If Not [String].IsNullOrEmpty(AuthenticationType) Then
+      AuthenticationController.AddUserAuthentication(user.UserID, AuthenticationType, UserToken)
+     End If
+
+     Dim strMessage As String = CompleteUserCreation(CreateStatus, user, True)
+     AddUserToSelectedRoles(user)
+
+     If (String.IsNullOrEmpty(strMessage)) Then
+      Response.Redirect(RedirectURL, False)
+     End If
+    Else
+     DotNetNuke.UI.Skins.Skin.AddModuleMessage(Me, UserController.GetUserCreateStatus(CreateStatus), ModuleMessage.ModuleMessageType.RedError)
+    End If
+   Catch exc As Exception
+    'Module failed to load
+    Exceptions.ProcessModuleLoadException(Me, exc)
+   End Try
+
+  Else ' Update User
+
+   UserController.UpdateUser(PortalId, user)
+   AddUserToSelectedRoles(user)
+
+  End If
+
+ End Sub
+
  Private Sub RegisterOrUpdateUser()
   If hidVerToken.Value <> VerificationKey Then Exit Sub
   If (PSettings.Security.UseCaptcha AndAlso ctlCaptcha.IsValid) OrElse Not PSettings.Security.UseCaptcha Then
@@ -366,93 +372,6 @@ Partial Public Class Registration
    End If
   End If
  End Sub
-
- Private Sub AddUserToSelectedRoles(user As UserInfo)
-
-  For Each item As RepeaterItem In rpRoles.Items
-   Dim chk As CheckBox = CType(item.FindControl("chkActive"), CheckBox)
-   Dim hid As HiddenField = CType(item.FindControl("hidRoleID"), HiddenField)
-   Dim roleId As Integer = Integer.Parse(hid.Value)
-   Dim role As Roles.RoleInfo = (New Roles.RoleController).GetRole(roleId, PortalSettings.PortalId)
-   If chk.Checked Then
-    JoinGroup(user, role)
-    If RedirectTabId = -1 AndAlso Settings.RolesToShow(role.RoleID).RedirectTab <> -1 Then
-     RedirectTabId = Settings.RolesToShow(role.RoleID).RedirectTab
-    End If
-   Else
-    Roles.RoleController.DeleteUserRole(UserInfo, role, PortalSettings, False)
-   End If
-  Next
-
- End Sub
-
- Private Const MemberPendingNotification As String = "GroupMemberPendingNotification"
- Private Const GroupModuleSharedResourcesPath As String = "~/DesktopModules/SocialGroups/App_LocalResources/SharedResources.resx"
-
- Private Sub JoinGroup(user As UserInfo, role As Roles.RoleInfo)
-  Try
-   If user.UserID >= 0 AndAlso role.RoleID > 0 Then
-    Dim roleController As New Roles.RoleController
-    If role IsNot Nothing Then
-
-     Dim requireApproval As Boolean = False
-
-     If role.Settings.ContainsKey("ReviewMembers") Then
-      requireApproval = Convert.ToBoolean(role.Settings("ReviewMembers"))
-     End If
-
-     If role.IsPublic AndAlso Not requireApproval Then
-      roleController.AddUserRole(PortalSettings.PortalId, UserInfo.UserID, role.RoleID, Null.NullDate)
-      roleController.UpdateRole(role)
-     End If
-
-     If role.IsPublic AndAlso requireApproval Then
-      roleController.AddUserRole(PortalSettings.PortalId, UserInfo.UserID, role.RoleID, Roles.RoleStatus.Pending, False, Null.NullDate, Null.NullDate)
-      AddGroupOwnerNotification(MemberPendingNotification, TabId, ModuleId, role, UserInfo)
-     End If
-    End If
-   End If
-  Catch exc As Exception
-  End Try
- End Sub
-
- Friend Overridable Function AddGroupOwnerNotification(notificationTypeName As String, tabId As Integer, moduleId As Integer, group As Roles.RoleInfo, initiatingUser As UserInfo) As Notification
-  Dim notificationType As NotificationType = NotificationsController.Instance.GetNotificationType(notificationTypeName)
-
-  Dim tokenReplace As New GroupItemTokenReplace(group)
-
-  Dim subject As String = Localization.GetString(notificationTypeName & ".Subject", GroupModuleSharedResourcesPath)
-  Dim body As String = Localization.GetString(notificationTypeName & ".Body", GroupModuleSharedResourcesPath)
-  subject = subject.Replace("[DisplayName]", initiatingUser.DisplayName)
-  subject = subject.Replace("[ProfileUrl]", DotNetNuke.Common.Globals.UserProfileURL(initiatingUser.UserID))
-  subject = tokenReplace.ReplaceGroupItemTokens(subject)
-  body = body.Replace("[DisplayName]", initiatingUser.DisplayName)
-  body = body.Replace("[ProfileUrl]", DotNetNuke.Common.Globals.UserProfileURL(initiatingUser.UserID))
-  body = tokenReplace.ReplaceGroupItemTokens(body)
-  Dim roleCreator As UserInfo = UserController.GetUserById(group.PortalID, group.CreatedByUserID)
-  Dim roleOwners As New List(Of UserInfo)
-  Dim rc As New Roles.RoleController
-  For Each userInfo As UserInfo In rc.GetUsersByRoleName(group.PortalID, group.RoleName)
-   Dim userRoleInfo As DotNetNuke.Entities.Users.UserRoleInfo = rc.GetUserRole(group.PortalID, userInfo.UserID, group.RoleID)
-   If userRoleInfo.IsOwner AndAlso userRoleInfo.UserID <> group.CreatedByUserID Then
-    roleOwners.Add(UserController.GetUserById(group.PortalID, userRoleInfo.UserID))
-   End If
-  Next
-  roleOwners.Add(roleCreator)
-
-  'Need to add from sender details
-  Dim notification As New Notification() With {
-    .NotificationTypeID = notificationType.NotificationTypeId,
-    .Subject = subject,
-    .Body = body,
-    .IncludeDismissAction = True,
-    .SenderUserID = initiatingUser.UserID,
-    .Context = [String].Format("{0}:{1}:{2}:{3}", tabId, moduleId, group.RoleID, initiatingUser.UserID)
-  }
-  NotificationsController.Instance.SendNotification(notification, initiatingUser.PortalID, Nothing, roleOwners)
-
-  Return notification
- End Function
 
  Private Function CompleteUserCreation(createStatus As UserCreateStatus, newUser As UserInfo, notify As Boolean) As String
 
@@ -517,6 +436,97 @@ Partial Public Class Registration
 
   Return strMessage
  End Function
+#End Region
+
+#Region " Role Membership Logic "
+ Private Sub AddUserToSelectedRoles(user As UserInfo)
+
+  For Each item As RepeaterItem In rpRoles.Items
+   Dim chk As CheckBox = CType(item.FindControl("chkActive"), CheckBox)
+   Dim hid As HiddenField = CType(item.FindControl("hidRoleID"), HiddenField)
+   Dim roleId As Integer = Integer.Parse(hid.Value)
+   Dim role As Roles.RoleInfo = (New Roles.RoleController).GetRole(roleId, PortalSettings.PortalId)
+   If chk.Checked Then
+    JoinGroup(user, role)
+    If RedirectTabId = -1 AndAlso Settings.RolesToShow(role.RoleID).RedirectTab <> -1 Then
+     RedirectTabId = Settings.RolesToShow(role.RoleID).RedirectTab
+    End If
+   Else
+    Roles.RoleController.DeleteUserRole(UserInfo, role, PortalSettings, False)
+   End If
+  Next
+
+ End Sub
+
+ Private Sub JoinGroup(user As UserInfo, role As Roles.RoleInfo)
+  Try
+   If user.UserID >= 0 AndAlso role.RoleID > 0 Then
+    Dim roleController As New Roles.RoleController
+    If role IsNot Nothing Then
+
+     Dim requireApproval As Boolean = False
+
+     If role.Settings.ContainsKey("ReviewMembers") Then
+      requireApproval = Convert.ToBoolean(role.Settings("ReviewMembers"))
+     End If
+
+     If role.IsPublic AndAlso Not requireApproval Then
+      roleController.AddUserRole(PortalSettings.PortalId, UserInfo.UserID, role.RoleID, Null.NullDate)
+      roleController.UpdateRole(role)
+     End If
+
+     If role.IsPublic AndAlso requireApproval Then
+      roleController.AddUserRole(PortalSettings.PortalId, UserInfo.UserID, role.RoleID, Roles.RoleStatus.Pending, False, Null.NullDate, Null.NullDate)
+      AddGroupOwnerNotification(MemberPendingNotification, TabId, ModuleId, role, UserInfo)
+     End If
+    End If
+   End If
+  Catch exc As Exception
+  End Try
+ End Sub
+#End Region
+
+#Region " Notification Logic "
+ Private Const MemberPendingNotification As String = "GroupMemberPendingNotification"
+ Private Const GroupModuleSharedResourcesPath As String = "~/DesktopModules/SocialGroups/App_LocalResources/SharedResources.resx"
+
+ Friend Overridable Function AddGroupOwnerNotification(notificationTypeName As String, tabId As Integer, moduleId As Integer, group As Roles.RoleInfo, initiatingUser As UserInfo) As Notification
+  Dim notificationType As NotificationType = NotificationsController.Instance.GetNotificationType(notificationTypeName)
+
+  Dim tokenReplace As New GroupItemTokenReplace(group)
+
+  Dim subject As String = Localization.GetString(notificationTypeName & ".Subject", GroupModuleSharedResourcesPath)
+  Dim body As String = Localization.GetString(notificationTypeName & ".Body", GroupModuleSharedResourcesPath)
+  subject = subject.Replace("[DisplayName]", initiatingUser.DisplayName)
+  subject = subject.Replace("[ProfileUrl]", DotNetNuke.Common.Globals.UserProfileURL(initiatingUser.UserID))
+  subject = tokenReplace.ReplaceGroupItemTokens(subject)
+  body = body.Replace("[DisplayName]", initiatingUser.DisplayName)
+  body = body.Replace("[ProfileUrl]", DotNetNuke.Common.Globals.UserProfileURL(initiatingUser.UserID))
+  body = tokenReplace.ReplaceGroupItemTokens(body)
+  Dim roleCreator As UserInfo = UserController.GetUserById(group.PortalID, group.CreatedByUserID)
+  Dim roleOwners As New List(Of UserInfo)
+  Dim rc As New Roles.RoleController
+  For Each userInfo As UserInfo In rc.GetUsersByRoleName(group.PortalID, group.RoleName)
+   Dim userRoleInfo As DotNetNuke.Entities.Users.UserRoleInfo = rc.GetUserRole(group.PortalID, userInfo.UserID, group.RoleID)
+   If userRoleInfo.IsOwner AndAlso userRoleInfo.UserID <> group.CreatedByUserID Then
+    roleOwners.Add(UserController.GetUserById(group.PortalID, userRoleInfo.UserID))
+   End If
+  Next
+  roleOwners.Add(roleCreator)
+
+  'Need to add from sender details
+  Dim notification As New Notification() With {
+    .NotificationTypeID = notificationType.NotificationTypeId,
+    .Subject = subject,
+    .Body = body,
+    .IncludeDismissAction = True,
+    .SenderUserID = initiatingUser.UserID,
+    .Context = [String].Format("{0}:{1}:{2}:{3}", tabId, moduleId, group.RoleID, initiatingUser.UserID)
+  }
+  NotificationsController.Instance.SendNotification(notification, initiatingUser.PortalID, Nothing, roleOwners)
+
+  Return notification
+ End Function
 
  Private Sub SendAdminNotification(newUser As UserInfo, notificationType As String)
   Dim notification As New DotNetNuke.Services.Social.Notifications.Notification() With {.NotificationTypeID = DotNetNuke.Services.Social.Notifications.NotificationsController.Instance.GetNotificationType(notificationType).NotificationTypeId, .IncludeDismissAction = True, .SenderUserID = PortalSettings.AdministratorId}
@@ -552,6 +562,19 @@ Partial Public Class Registration
   End Select
   Return LocalizeNotificationText(text, locale, newUser)
  End Function
+#End Region
+
+#Region " IActionable "
+ Public ReadOnly Property ModuleActions As Actions.ModuleActionCollection Implements IActionable.ModuleActions
+  Get
+   Dim MyActions As New Actions.ModuleActionCollection
+   If Security.CanEdit Then
+    MyActions.Add(GetNextActionID, Localization.GetString("ChooseFields", LocalResourceFile), ModuleActionType.EditContent, "", "", EditUrl("Fields"), False, DotNetNuke.Security.SecurityAccessLevel.Edit, True, False)
+    MyActions.Add(GetNextActionID, Localization.GetString("RoleEditor", LocalResourceFile), ModuleActionType.EditContent, "", "", EditUrl("Roles"), False, DotNetNuke.Security.SecurityAccessLevel.Edit, True, False)
+   End If
+   Return MyActions
+  End Get
+ End Property
 #End Region
 
 End Class

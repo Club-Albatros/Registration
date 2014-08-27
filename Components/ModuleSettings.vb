@@ -11,6 +11,8 @@ Public Class ModuleSettings
  Private Property PortalId As Integer = -1
  Private Property Settings As Hashtable
 
+ Public Property MultiSelect As Boolean = True
+
  Private _rolesToShow As String = ""
  Private _rolesToShowBuff As Dictionary(Of Integer, RegistrationRoleInfo)
  Public Property RolesToShow() As Dictionary(Of Integer, RegistrationRoleInfo)
@@ -34,6 +36,7 @@ Public Class ModuleSettings
   _PortalId = portalId
   _Settings = (New DotNetNuke.Entities.Modules.ModuleController).GetModuleSettings(moduleId)
   _rolesToShow = _Settings.GetValue(Of String)("RolesToShow", _rolesToShow)
+  MultiSelect = _Settings.GetValue(Of Boolean)("MultiSelect", MultiSelect)
 
  End Sub
 #End Region
@@ -43,6 +46,7 @@ Public Class ModuleSettings
 
   Dim objModules As New ModuleController
   objModules.UpdateModuleSetting(ModuleId, "RolesToShow", _rolesToShow)
+  objModules.UpdateModuleSetting(ModuleId, "MultiSelect", MultiSelect.ToString)
   DotNetNuke.Common.Utilities.DataCache.SetCache(CacheKey(ModuleId), Me)
 
  End Sub
