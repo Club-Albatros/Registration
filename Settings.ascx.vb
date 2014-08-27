@@ -49,10 +49,13 @@ Public Class Settings
 
   Dim res As New List(Of String)
   For Each itm As ListItem In cblRoles.Items
-   If itm.Selected Then
+   If itm.Selected AndAlso itm.Value <> PortalSettings.RegisteredRoleId.ToString Then
     res.Add(itm.Value)
    End If
   Next
+  If Not chkMultiSelect.Checked Then
+   res.Add(PortalSettings.RegisteredRoleId.ToString)
+  End If
   Settings.RolesToShow = Globals.GetRoleDictionary(PortalId, String.Join(";", res), Threading.Thread.CurrentThread.CurrentCulture.Name)
   Settings.MultiSelect = chkMultiSelect.Checked
   Settings.SaveSettings()

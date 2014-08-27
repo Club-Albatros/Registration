@@ -211,11 +211,18 @@ Partial Public Class Registration
   Dim opt As RadioButton = CType(e.Item.FindControl("rdoActive"), RadioButton)
   Dim role As RegistrationRoleInfo = CType(e.Item.DataItem, RegistrationRoleInfo)
 
-  If Me.UserInfo IsNot Nothing And Not Me.IsPostBack Then
-   Dim userRoles As List(Of UserRoleInfo) = CType((New Roles.RoleController).GetUserRoles(UserInfo, True), Global.System.Collections.Generic.List(Of Global.DotNetNuke.Entities.Users.UserRoleInfo))
-   If userRoles.Where(Function(x) x.RoleID = role.RoleID).Count > 0 Then
-    chk.Checked = True
-    opt.Checked = True
+  If Not Me.IsPostBack Then
+   If Me.UserInfo.UserID <> -1 Then
+    Dim userRoles As List(Of UserRoleInfo) = CType((New Roles.RoleController).GetUserRoles(UserInfo, True), Global.System.Collections.Generic.List(Of Global.DotNetNuke.Entities.Users.UserRoleInfo))
+    If userRoles.Where(Function(x) x.RoleID = role.RoleID).Count > 0 Then
+     chk.Checked = True
+     opt.Checked = True
+    End If
+   Else
+    If role.RoleID = PortalSettings.RegisteredRoleId Then
+     chk.Checked = True
+     opt.Checked = True
+    End If
    End If
   End If
   chk.Visible = Settings.MultiSelect
