@@ -65,9 +65,9 @@
 }
 
 function setRegionList() {
- $('#' + dnnRegionBoxId + '_dropdown').hide();
- $('#' + dnnRegionBoxId + '_text').show();
  if (typeof dnnRegionBoxId !== 'undefined') {
+  $('#' + dnnRegionBoxId + '_dropdown').hide();
+  $('#' + dnnRegionBoxId + '_text').show();
   var initVal = $('#' + dnnRegionBoxId + '_value').attr('value');
   if (typeof dnnCountryBoxId !== 'undefined') {
    crservice.listRegions($('#' + dnnCountryBoxId + '_code').val(), function (data) {
@@ -90,6 +90,7 @@ function setRegionList() {
 }
 
 function setRegionDropdown(data) {
+ if (typeof dnnRegionBoxId == 'undefined') { return };
  var dd = $('#' + dnnRegionBoxId + '_dropdown');
  $(dd).empty();
  $.each(data, function (index, value) {
@@ -107,6 +108,7 @@ function setRegionDropdown(data) {
 }
 
 function setupCountryAutoComplete() {
+ if (typeof dnnCountryBoxId == 'undefined') { return };
  $('#' + dnnCountryBoxId + '_name').autocomplete({
   minLength: 2,
   source: function (request, response) {
@@ -151,10 +153,10 @@ function setupCityAutoComplete() {
  }
 }
 
-function foobar() {
+function resetCountryRegionCityControls() {
  setupCountryAutoComplete();
  setRegionList();
  setupCityAutoComplete();
 }
 
-Sys.WebForms.PageRequestManager.getInstance().add_endRequest(foobar);
+Sys.WebForms.PageRequestManager.getInstance().add_endRequest(resetCountryRegionCityControls);
