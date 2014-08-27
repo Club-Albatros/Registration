@@ -8,9 +8,21 @@ Public Class Role
 
  Private Sub Page_Init(sender As Object, e As System.EventArgs) Handles Me.Init
 
+  Me.LocalResourceFile = "/DesktopModules/Albatros/Registration/App_LocalResources/Role"
+
  End Sub
 
  Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+
+  If Not Me.IsPostBack Then
+   ddRedirectTab.DataSource = DotNetNuke.Entities.Tabs.TabController.GetPortalTabs(PortalId, -1, False, False)
+   ddRedirectTab.DataBind()
+   ddRedirectTab.Items.Insert(0, New ListItem(LocalizeString("NoRedirect"), "-1"))
+   Try
+    ddRedirectTab.Items.FindByValue(Role.RedirectTab.ToString).Selected = True
+   Catch ex As Exception
+   End Try
+  End If
 
   rpLocalizations.DataSource = RoleLocalizationsController.GetRoleLocalizationsByRole(PortalId, Role.RoleID)
   rpLocalizations.DataBind()
@@ -46,6 +58,8 @@ Public Class Role
    End If
 
   Next
+
+  Data.DataProvider.Instance().UpdateRoleSetting(Role.RoleID, Integer.Parse(ddRedirectTab.SelectedValue))
 
  End Sub
 End Class

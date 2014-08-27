@@ -1,0 +1,69 @@
+ALTER TABLE {databaseOwner}{objectQualifier}Registration_RoleSettings ADD
+ RedirectTab INT NOT NULL DEFAULT -1
+GO
+
+/******* VIEWS *******/
+IF  EXISTS (SELECT * FROM sys.views WHERE object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}vw_Registration_Roles'))
+DROP VIEW {databaseOwner}{objectQualifier}vw_Registration_Roles
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE VIEW {databaseOwner}{objectQualifier}vw_Registration_Roles
+AS
+SELECT
+ r.AutoAssignment,
+ r.BillingFrequency,
+ r.BillingPeriod,
+ r.CreatedByUserID,
+ r.CreatedOnDate,
+ ISNULL(rl.Description, r.Description) Description,
+ ISNULL(rl.IconFile, r.IconFile) IconFile,
+ r.IsPublic,
+ r.IsSystemRole,
+ r.LastModifiedByUserID,
+ r.LastModifiedOnDate,
+ r.PortalID,
+ r.RoleGroupID,
+ r.RoleID,
+ ISNULL(rl.RoleName, r.RoleName) RoleName,
+ r.RSVPCode,
+ r.SecurityMode,
+ r.ServiceFee,
+ r.TrialFee,
+ r.TrialFrequency,
+ r.TrialPeriod,
+ rl.Locale,
+ rl.Presentation,
+ ISNULL(rs.ViewOrder, 0) ViewOrder,
+ rs.RedirectTab,
+ (SELECT COUNT(*) FROM {databaseOwner}{objectQualifier}UserRoles U WHERE U.RoleID = R.RoleID) AS UserCount
+FROM {databaseOwner}{objectQualifier}Roles r
+ LEFT JOIN {databaseOwner}{objectQualifier}Registration_RoleSettings rs ON r.RoleID=rs.RoleId
+ LEFT JOIN {databaseOwner}{objectQualifier}Registration_RoleLocalization rl ON r.RoleID=rl.RoleId
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}Registration_UpdateRoleSetting') AND type in (N'P', N'PC'))
+DROP PROCEDURE {databaseOwner}{objectQualifier}Registration_UpdateRoleSetting
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE {databaseOwner}{objectQualifier}Registration_UpdateRoleSetting
+ @RoleID INT, 
+ @RedirectTab INT
+AS
+IF NOT EXISTS(SELECT * FROM {databaseOwner}{objectQualifier}Registration_RoleSettings WHERE RoleId=@RoleId)
+ INSERT INTO {databaseOwner}{objectQualifier}Registration_RoleSettings (RoleID, RedirectTab, ViewOrder)
+  VALUES (@RoleID, @RedirectTab, 0)
+ELSE
+ UPDATE {databaseOwner}{objectQualifier}Registration_RoleSettings SET
+  [RedirectTab] = @RedirectTab
+ WHERE
+  [RoleID] = @RoleID
+GO
+

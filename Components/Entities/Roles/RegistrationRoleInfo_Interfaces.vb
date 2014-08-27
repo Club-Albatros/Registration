@@ -27,6 +27,7 @@ Namespace Entities.Roles
    Locale = Convert.ToString(Null.SetNull(dr.Item("Locale"), Locale))
    Presentation = Convert.ToString(Null.SetNull(dr.Item("Presentation"), Presentation))
    ViewOrder = Convert.ToInt32(Null.SetNull(dr.Item("ViewOrder"), ViewOrder))
+   RedirectTab = Convert.ToInt32(Null.SetNull(dr.Item("RedirectTab"), RedirectTab))
 
   End Sub
 #End Region
@@ -47,6 +48,8 @@ Namespace Entities.Roles
      Return Me.Presentation
     Case "vieworder"
      Return (Me.ViewOrder.ToString(OutputFormat, formatProvider))
+    Case "redirecttab"
+     Return (Me.RedirectTab.ToString(OutputFormat, formatProvider))
     Case Else
      Return MyBase.GetProperty(strPropertyName, strFormat, formatProvider, AccessingUser, AccessLevel, PropertyNotFound)
    End Select

@@ -21,6 +21,8 @@ Namespace Entities.Roles
   Public Property ViewOrder As Integer = 0
   <DataMember()>
   Public Property Presentation As String = ""
+  <DataMember()>
+  Public Property RedirectTab As Integer = 0
 #End Region
 
  End Class

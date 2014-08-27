@@ -39,6 +39,10 @@ IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'{databaseOwn
 DROP PROCEDURE {databaseOwner}{objectQualifier}Registration_SetRoleProperty
 GO
 
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}Registration_UpdateRoleSetting') AND type in (N'P', N'PC'))
+DROP PROCEDURE {databaseOwner}{objectQualifier}Registration_UpdateRoleSetting
+GO
+
 /******* VIEWS *******/
 IF  EXISTS (SELECT * FROM sys.views WHERE object_id = OBJECT_ID(N'{databaseOwner}{objectQualifier}vw_Registration_Roles'))
 DROP VIEW {databaseOwner}{objectQualifier}vw_Registration_Roles

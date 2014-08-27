@@ -14,6 +14,24 @@ Option Explicit On
 Partial Public Class Role
 
  '''<summary>
+ '''plRedirectTab control.
+ '''</summary>
+ '''<remarks>
+ '''Auto-generated field.
+ '''To modify move field declaration from designer file to code-behind file.
+ '''</remarks>
+ Protected WithEvents plRedirectTab As Global.System.Web.UI.UserControl
+
+ '''<summary>
+ '''ddRedirectTab control.
+ '''</summary>
+ '''<remarks>
+ '''Auto-generated field.
+ '''To modify move field declaration from designer file to code-behind file.
+ '''</remarks>
+ Protected WithEvents ddRedirectTab As Global.System.Web.UI.WebControls.DropDownList
+
+ '''<summary>
  '''rpLocalizations control.
  '''</summary>
  '''<remarks>

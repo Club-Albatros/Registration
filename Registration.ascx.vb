@@ -60,6 +60,14 @@ Partial Public Class Registration
  End Property
  Private m_CreateStatus As UserCreateStatus
 
+ Protected Property RedirectTabId As Integer = -1
+
+ Protected ReadOnly Property HomeURL As String
+  Get
+   Return DotNetNuke.Common.NavigateURL(PortalSettings.HomeTabId)
+  End Get
+ End Property
+
  Protected ReadOnly Property RedirectURL() As String
   Get
    Dim _RedirectURL As String = ""
@@ -88,7 +96,7 @@ Partial Public Class Registration
      End If
      If [String].IsNullOrEmpty(_RedirectURL) Then
       'redirect to current page 
-      _RedirectURL = DotNetNuke.Common.Globals.NavigateURL()
+      _RedirectURL = HomeURL
      End If
     Else
      'redirect to after registration page
@@ -194,9 +202,6 @@ Partial Public Class Registration
    Next
   End If
 
-  AddHandler cancelButton.Click, AddressOf cancelButton_Click
-  AddHandler registerButton.Click, AddressOf registerButton_Click
-
   pnlSocialLogin.Visible = False
   If UserInfo.UserID = -1 Then
    If PSettings.Registration.UseAuthProviders Then
@@ -220,6 +225,11 @@ Partial Public Class Registration
      End Try
     Next
    End If
+   registerButton.Visible = True
+   cmdUpdate.Visible = False
+  Else
+   registerButton.Visible = False
+   cmdUpdate.Visible = True
   End If
 
  End Sub
@@ -255,22 +265,21 @@ Partial Public Class Registration
 
  End Sub
 
- Private Sub cancelButton_Click(sender As Object, e As EventArgs)
-  Response.Redirect(RedirectURL, False)
+ Private Sub cancelButton_Click(sender As Object, e As EventArgs) Handles cancelButton.Click
+  Response.Redirect(HomeURL, False)
  End Sub
 
- Private Sub registerButton_Click(sender As Object, e As EventArgs)
-  If hidVerToken.Value <> VerificationKey Then Exit Sub
-  If (PSettings.Security.UseCaptcha AndAlso ctlCaptcha.IsValid) OrElse Not PSettings.Security.UseCaptcha Then
-   If profileForm.IsValid Then
-    CreateOrUpdateUser(profileForm.User)
-   Else
-    If CreateStatus <> UserCreateStatus.AddUser Then
-     DotNetNuke.UI.Skins.Skin.AddModuleMessage(Me, UserController.GetUserCreateStatus(CreateStatus), ModuleMessage.ModuleMessageType.RedError)
-    End If
-   End If
+ Private Sub registerButton_Click(sender As Object, e As EventArgs) Handles registerButton.Click
+  RegisterOrUpdateUser()
+  If RedirectTabId <> -1 Then
+   Response.Redirect(DotNetNuke.Common.NavigateURL(RedirectTabId), False)
+  Else
+   Response.Redirect(RedirectURL, False)
   End If
-  Response.Redirect(RedirectURL, False)
+ End Sub
+
+ Private Sub cmdUpdate_Click(sender As Object, e As System.EventArgs) Handles cmdUpdate.Click
+  RegisterOrUpdateUser()
  End Sub
 
  Private Sub UserAuthenticated(sender As Object, e As UserAuthenticatedEventArgs)
@@ -345,6 +354,19 @@ Partial Public Class Registration
 #End Region
 
 #Region " Private Methods "
+ Private Sub RegisterOrUpdateUser()
+  If hidVerToken.Value <> VerificationKey Then Exit Sub
+  If (PSettings.Security.UseCaptcha AndAlso ctlCaptcha.IsValid) OrElse Not PSettings.Security.UseCaptcha Then
+   If profileForm.IsValid Then
+    CreateOrUpdateUser(profileForm.User)
+   Else
+    If CreateStatus <> UserCreateStatus.AddUser Then
+     DotNetNuke.UI.Skins.Skin.AddModuleMessage(Me, UserController.GetUserCreateStatus(CreateStatus), ModuleMessage.ModuleMessageType.RedError)
+    End If
+   End If
+  End If
+ End Sub
+
  Private Sub AddUserToSelectedRoles(user As UserInfo)
 
   For Each item As RepeaterItem In rpRoles.Items
@@ -354,6 +376,9 @@ Partial Public Class Registration
    Dim role As Roles.RoleInfo = (New Roles.RoleController).GetRole(roleId, PortalSettings.PortalId)
    If chk.Checked Then
     JoinGroup(user, role)
+    If RedirectTabId = -1 AndAlso Settings.RolesToShow(role.RoleID).RedirectTab <> -1 Then
+     RedirectTabId = Settings.RolesToShow(role.RoleID).RedirectTab
+    End If
    Else
     Roles.RoleController.DeleteUserRole(UserInfo, role, PortalSettings, False)
    End If

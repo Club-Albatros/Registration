@@ -1,7 +1,9 @@
 ﻿<%@ Control Language="vb" AutoEventWireup="false" CodeBehind="Role.ascx.vb" Inherits="Albatros.DNN.Modules.Registration.Role" %>
-
+<%@ Register TagPrefix="dnn" TagName="Label" Src="~/controls/LabelControl.ascx" %>
 
 <h2><%= Role.Rolename%></h2>
+<dnn:label id="plRedirectTab" runat="server" controlname="ddRedirectTab" suffix=":" />
+<asp:DropDownList runat="server" ID="ddRedirectTab" DataTextField="TabPath" DataValueField="TabID" />
 
 <div>
  <asp:Repeater runat="server" ID="rpLocalizations">
