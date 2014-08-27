@@ -1,18 +1,18 @@
 ﻿<%@ Control Language="vb" AutoEventWireup="false" CodeBehind="FieldChooser.ascx.vb" Inherits="Albatros.DNN.Modules.Registration.FieldChooser" %>
 
-<table id="fieldchooser">
+<table id="fieldchooser" cellspacing="4">
  <tr>
   <th></th>
 <asp:Repeater runat="server" ID="rpRoles">
  <ItemTemplate>
-  <th data-id="<%# Eval("RoleId")%>" class="ar_role"><%# Eval("RoleName")%></th>
+  <th data-id="<%# Eval("RoleId")%>" class="ar_th_role"><%# Eval("RoleName")%></th>
  </ItemTemplate>
 </asp:Repeater>
  </tr>
 <asp:Repeater runat="server" ID="rpFields">
  <ItemTemplate>
   <tr data-id="<%# Eval("PropertyDefinitionId")%>" class="ar_property">
-   <td><%# DotNetNuke.Services.Localization.Localization.GetString("ProfileProperties_" & Eval("PropertyName"),"DesktopModules\Admin\Security\App_LocalResources\Profile.ascx.resx").TrimEnd(":")%></td>
+   <td class="ar_property_title"><%# DotNetNuke.Services.Localization.Localization.GetString("ProfileProperties_" & Eval("PropertyName"),"DesktopModules\Admin\Security\App_LocalResources\Profile.ascx.resx").TrimEnd(":")%></td>
   </tr>
  </ItemTemplate>
 </asp:Repeater>
@@ -36,7 +36,7 @@
   }, <%= ModuleId %>);
 
   var roles = [];
-  roles = $('.ar_role').map(function() {
+  roles = $('.ar_th_role').map(function() {
    return $(this).attr('data-id');
   });
 

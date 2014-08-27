@@ -1,9 +1,11 @@
-﻿Public Class FieldChooser
+﻿Imports System.Linq
+
+Public Class FieldChooser
  Inherits ModuleBase
 
  Private Sub Page_Init(sender As Object, e As System.EventArgs) Handles Me.Init
 
-  rpRoles.DataSource = Settings.RolesToShow.Values
+  rpRoles.DataSource = Settings.RolesToShow.Values.Where(Function(r) r.RoleID <> PortalSettings.RegisteredRoleId)
   rpRoles.DataBind()
 
   rpFields.DataSource = DotNetNuke.Entities.Profile.ProfileController.GetPropertyDefinitionsByPortal(PortalId)

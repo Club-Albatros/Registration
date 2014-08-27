@@ -8,10 +8,6 @@
 {
  cursor: pointer;
 }
-.stripe
-{
- background-color: #ddd;
-}
 .ar_editrowdiv
 {
  display: inline-block;
@@ -39,7 +35,24 @@
  padding: 10px;
  margin-bottom: 20px;
 }
-
+.stripe
+{
+ background-color: #ddd;
+}
+.ar_th_role 
+{
+ padding: 5px;
+ max-width: 150px;
+}
+.ar_property td
+{
+ text-align: center;
+}
+td.ar_property_title
+{
+ text-align: left;
+ padding: 5px;
+}
 .ui-helper-hidden {
 	display: none;
 }
