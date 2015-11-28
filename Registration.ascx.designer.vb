@@ -56,7 +56,7 @@ Partial Public Class Registration
  '''Auto-generated field.
  '''To modify move field declaration from designer file to code-behind file.
  '''</remarks>
- Protected WithEvents profileForm As Global.Albatros.DNN.Modules.Registration.DnnProfileEditor
+ Protected WithEvents profileForm As Global.Albatros.DNN.Modules.Registration.dnnprofileeditor
 
  '''<summary>
  '''captchaRow control.
