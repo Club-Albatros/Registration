@@ -129,4 +129,10 @@
   <data name="plRoles.Text" xml:space="preserve">
     <value>Roles to show</value>
   </data>
+  <data name="plShowHumanQuestion.Help" xml:space="preserve">
+    <value>If selected a question will be shown that hopefully detects humans from bots</value>
+  </data>
+  <data name="plShowHumanQuestion.Text" xml:space="preserve">
+    <value>Show Human Question</value>
+  </data>
 </root>

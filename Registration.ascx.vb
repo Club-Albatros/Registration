@@ -113,7 +113,7 @@ Partial Public Class Registration
 #End Region
 
 #Region " Page Events "
- Private Sub Page_Init(sender As Object, e As System.EventArgs) Handles Me.Init
+ Private Sub Page_Init(sender As Object, e As EventArgs) Handles Me.Init
 
   jQuery.RequestDnnPluginsRegistration()
 
@@ -150,6 +150,7 @@ Partial Public Class Registration
    End If
    registerButton.Visible = True
    cmdUpdate.Visible = False
+   humanQuestionRow.Visible = Settings.ShowHumanQuestion
   Else
    registerButton.Visible = False
    cmdUpdate.Visible = True
@@ -157,12 +158,24 @@ Partial Public Class Registration
 
  End Sub
 
- Private Sub Page_Load(sender As Object, e As System.EventArgs) Handles Me.Load
+ Private Sub Page_Load(sender As Object, e As EventArgs) Handles Me.Load
 
   If PSettings.Security.UseCaptcha Then
    captchaRow.Visible = True
    ctlCaptcha.ErrorMessage = Localization.GetString("InvalidCaptcha", LocalResourceFile)
    ctlCaptcha.Text = Localization.GetString("CaptchaText", LocalResourceFile)
+  End If
+
+  If Settings.ShowHumanQuestion Then
+   Dim r As New Random
+   Dim n1 As Integer = r.Next(1, 21)
+   Dim n2 As Integer = r.Next(1, 21)
+   Dim question As String = String.Format(LocalizeString("HumanQuestion"), LocalizeString(n1.ToString), LocalizeString(n2.ToString))
+   humanQuestion.Text = question
+   humanAnswer.Value = (New PortalSecurity).EncryptString((n1 + n2).ToString, "AlbatrosRegistration")
+   Dim tb As New TextBox
+   tb.ID = "hans" & r.Next(1, 2000).ToString
+   humanAnswerRow.Controls.Add(tb)
   End If
 
   If PSettings.Registration.UseAuthProviders AndAlso [String].IsNullOrEmpty(AuthenticationType) Then
@@ -192,7 +205,7 @@ Partial Public Class Registration
 
  End Sub
 
- Private Sub Page_PreRender(sender As Object, e As System.EventArgs) Handles Me.PreRender
+ Private Sub Page_PreRender(sender As Object, e As EventArgs) Handles Me.PreRender
  End Sub
 #End Region
 
@@ -227,6 +240,22 @@ Partial Public Class Registration
  End Sub
 
  Private Sub registerButton_Click(sender As Object, e As EventArgs) Handles registerButton.Click
+  If Settings.ShowHumanQuestion Then
+   Dim goodAnswer As String = (New PortalSecurity).DecryptString(humanAnswer.Value, "AlbatrosRegistration")
+   Dim givenAnswer As String = ""
+   For Each param As String In Request.Params.AllKeys
+    If Regex.Match(param, "hans\d+").Success Then
+     givenAnswer = Request.Params(param).Trim
+    End If
+   Next
+   If goodAnswer <> givenAnswer Then
+    Dim l As New HtmlGenericControl("div")
+    l.InnerText = LocalizeString("WrongAnswer")
+    l.Attributes.Add("class", "dnnFormMessage dnnFormValidationSummary")
+    humanQuestionRow.Controls.Add(l)
+    Exit Sub
+   End If
+  End If
   RegisterOrUpdateUser()
   If RedirectTabId <> -1 Then
    Response.Redirect(DotNetNuke.Common.NavigateURL(RedirectTabId), False)
@@ -235,7 +264,7 @@ Partial Public Class Registration
   End If
  End Sub
 
- Private Sub cmdUpdate_Click(sender As Object, e As System.EventArgs) Handles cmdUpdate.Click
+ Private Sub cmdUpdate_Click(sender As Object, e As EventArgs) Handles cmdUpdate.Click
   RegisterOrUpdateUser()
  End Sub
 #End Region

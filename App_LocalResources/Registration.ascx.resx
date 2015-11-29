@@ -138,4 +138,70 @@
   <data name="secConnect.Text" xml:space="preserve">
     <value>Connect Using</value>
   </data>
+  <data name="1.Text" xml:space="preserve">
+    <value>one</value>
+  </data>
+  <data name="10.Text" xml:space="preserve">
+    <value>ten</value>
+  </data>
+  <data name="11.Text" xml:space="preserve">
+    <value>eleven</value>
+  </data>
+  <data name="12.Text" xml:space="preserve">
+    <value>twelve</value>
+  </data>
+  <data name="13.Text" xml:space="preserve">
+    <value>thirteen</value>
+  </data>
+  <data name="14.Text" xml:space="preserve">
+    <value>fourteen</value>
+  </data>
+  <data name="15.Text" xml:space="preserve">
+    <value>fifteen</value>
+  </data>
+  <data name="16.Text" xml:space="preserve">
+    <value>sixteen</value>
+  </data>
+  <data name="17.Text" xml:space="preserve">
+    <value>seventeen</value>
+  </data>
+  <data name="18.Text" xml:space="preserve">
+    <value>eighteen</value>
+  </data>
+  <data name="19.Text" xml:space="preserve">
+    <value>nineteen</value>
+  </data>
+  <data name="2.Text" xml:space="preserve">
+    <value>two</value>
+  </data>
+  <data name="20.Text" xml:space="preserve">
+    <value>twenty</value>
+  </data>
+  <data name="3.Text" xml:space="preserve">
+    <value>three</value>
+  </data>
+  <data name="4.Text" xml:space="preserve">
+    <value>four</value>
+  </data>
+  <data name="5.Text" xml:space="preserve">
+    <value>five</value>
+  </data>
+  <data name="6.Text" xml:space="preserve">
+    <value>six</value>
+  </data>
+  <data name="7.Text" xml:space="preserve">
+    <value>seven</value>
+  </data>
+  <data name="8.Text" xml:space="preserve">
+    <value>eight</value>
+  </data>
+  <data name="9.Text" xml:space="preserve">
+    <value>nine</value>
+  </data>
+  <data name="HumanQuestion.Text" xml:space="preserve">
+    <value>If you add {0} and {1} together and write the result as number, what do you get?</value>
+  </data>
+  <data name="WrongAnswer.Text" xml:space="preserve">
+    <value>Wrong answer!</value>
+  </data>
 </root>

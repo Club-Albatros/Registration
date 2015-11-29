@@ -7,6 +7,10 @@
   <asp:CheckBox runat="server" ID="chkMultiSelect" />
  </div>
  <div class="dnnFormItem">
+  <dnn:label id="plShowHumanQuestion" runat="server" controlname="chkShowHumanQuestion" suffix=":" />
+  <asp:CheckBox runat="server" ID="chkShowHumanQuestion" />
+ </div>
+ <div class="dnnFormItem">
   <dnn:label id="plRoles" runat="server" controlname="cblRoles" suffix=":" />
   <asp:CheckBoxList runat="server" ID="cblRoles" DataTextField="RoleName" DataValueField="RoleID" />
  </div>

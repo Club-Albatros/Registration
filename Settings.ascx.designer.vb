@@ -12,40 +12,58 @@ Option Explicit On
 
 
 Partial Public Class Settings
-
- '''<summary>
- '''plMultiSelect control.
- '''</summary>
- '''<remarks>
- '''Auto-generated field.
- '''To modify move field declaration from designer file to code-behind file.
- '''</remarks>
- Protected WithEvents plMultiSelect As Global.System.Web.UI.UserControl
-
- '''<summary>
- '''chkMultiSelect control.
- '''</summary>
- '''<remarks>
- '''Auto-generated field.
- '''To modify move field declaration from designer file to code-behind file.
- '''</remarks>
- Protected WithEvents chkMultiSelect As Global.System.Web.UI.WebControls.CheckBox
-
- '''<summary>
- '''plRoles control.
- '''</summary>
- '''<remarks>
- '''Auto-generated field.
- '''To modify move field declaration from designer file to code-behind file.
- '''</remarks>
- Protected WithEvents plRoles As Global.System.Web.UI.UserControl
-
- '''<summary>
- '''cblRoles control.
- '''</summary>
- '''<remarks>
- '''Auto-generated field.
- '''To modify move field declaration from designer file to code-behind file.
- '''</remarks>
- Protected WithEvents cblRoles As Global.System.Web.UI.WebControls.CheckBoxList
+    
+    '''<summary>
+    '''plMultiSelect control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents plMultiSelect As Global.System.Web.UI.UserControl
+    
+    '''<summary>
+    '''chkMultiSelect control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents chkMultiSelect As Global.System.Web.UI.WebControls.CheckBox
+    
+    '''<summary>
+    '''plShowHumanQuestion control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents plShowHumanQuestion As Global.System.Web.UI.UserControl
+    
+    '''<summary>
+    '''chkShowHumanQuestion control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents chkShowHumanQuestion As Global.System.Web.UI.WebControls.CheckBox
+    
+    '''<summary>
+    '''plRoles control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents plRoles As Global.System.Web.UI.UserControl
+    
+    '''<summary>
+    '''cblRoles control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents cblRoles As Global.System.Web.UI.WebControls.CheckBoxList
 End Class

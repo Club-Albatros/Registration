@@ -12,121 +12,157 @@ Option Explicit On
 
 
 Partial Public Class Registration
-
- '''<summary>
- '''pnlSocialLogin control.
- '''</summary>
- '''<remarks>
- '''Auto-generated field.
- '''To modify move field declaration from designer file to code-behind file.
- '''</remarks>
- Protected WithEvents pnlSocialLogin As Global.System.Web.UI.WebControls.Panel
-
- '''<summary>
- '''socialLoginControls control.
- '''</summary>
- '''<remarks>
- '''Auto-generated field.
- '''To modify move field declaration from designer file to code-behind file.
- '''</remarks>
- Protected WithEvents socialLoginControls As Global.System.Web.UI.WebControls.PlaceHolder
-
- '''<summary>
- '''pnlRoles control.
- '''</summary>
- '''<remarks>
- '''Auto-generated field.
- '''To modify move field declaration from designer file to code-behind file.
- '''</remarks>
- Protected WithEvents pnlRoles As Global.System.Web.UI.WebControls.Panel
-
- '''<summary>
- '''rpRoles control.
- '''</summary>
- '''<remarks>
- '''Auto-generated field.
- '''To modify move field declaration from designer file to code-behind file.
- '''</remarks>
- Protected WithEvents rpRoles As Global.System.Web.UI.WebControls.Repeater
-
- '''<summary>
- '''profileForm control.
- '''</summary>
- '''<remarks>
- '''Auto-generated field.
- '''To modify move field declaration from designer file to code-behind file.
- '''</remarks>
- Protected WithEvents profileForm As Global.Albatros.DNN.Modules.Registration.dnnprofileeditor
-
- '''<summary>
- '''captchaRow control.
- '''</summary>
- '''<remarks>
- '''Auto-generated field.
- '''To modify move field declaration from designer file to code-behind file.
- '''</remarks>
- Protected WithEvents captchaRow As Global.System.Web.UI.HtmlControls.HtmlGenericControl
-
- '''<summary>
- '''captchaLabel control.
- '''</summary>
- '''<remarks>
- '''Auto-generated field.
- '''To modify move field declaration from designer file to code-behind file.
- '''</remarks>
- Protected WithEvents captchaLabel As Global.System.Web.UI.UserControl
-
- '''<summary>
- '''ctlCaptcha control.
- '''</summary>
- '''<remarks>
- '''Auto-generated field.
- '''To modify move field declaration from designer file to code-behind file.
- '''</remarks>
- Protected WithEvents ctlCaptcha As Global.DotNetNuke.UI.WebControls.CaptchaControl
-
- '''<summary>
- '''actionsRow control.
- '''</summary>
- '''<remarks>
- '''Auto-generated field.
- '''To modify move field declaration from designer file to code-behind file.
- '''</remarks>
- Protected WithEvents actionsRow As Global.System.Web.UI.HtmlControls.HtmlGenericControl
-
- '''<summary>
- '''cmdUpdate control.
- '''</summary>
- '''<remarks>
- '''Auto-generated field.
- '''To modify move field declaration from designer file to code-behind file.
- '''</remarks>
- Protected WithEvents cmdUpdate As Global.System.Web.UI.WebControls.LinkButton
-
- '''<summary>
- '''registerButton control.
- '''</summary>
- '''<remarks>
- '''Auto-generated field.
- '''To modify move field declaration from designer file to code-behind file.
- '''</remarks>
- Protected WithEvents registerButton As Global.System.Web.UI.WebControls.LinkButton
-
- '''<summary>
- '''cancelButton control.
- '''</summary>
- '''<remarks>
- '''Auto-generated field.
- '''To modify move field declaration from designer file to code-behind file.
- '''</remarks>
- Protected WithEvents cancelButton As Global.System.Web.UI.WebControls.LinkButton
-
- '''<summary>
- '''hidVerToken control.
- '''</summary>
- '''<remarks>
- '''Auto-generated field.
- '''To modify move field declaration from designer file to code-behind file.
- '''</remarks>
- Protected WithEvents hidVerToken As Global.System.Web.UI.WebControls.HiddenField
+    
+    '''<summary>
+    '''pnlSocialLogin control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents pnlSocialLogin As Global.System.Web.UI.WebControls.Panel
+    
+    '''<summary>
+    '''socialLoginControls control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents socialLoginControls As Global.System.Web.UI.WebControls.PlaceHolder
+    
+    '''<summary>
+    '''pnlRoles control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents pnlRoles As Global.System.Web.UI.WebControls.Panel
+    
+    '''<summary>
+    '''rpRoles control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents rpRoles As Global.System.Web.UI.WebControls.Repeater
+    
+    '''<summary>
+    '''profileForm control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents profileForm As Global.Albatros.DNN.Modules.Registration.DnnProfileEditor
+    
+    '''<summary>
+    '''captchaRow control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents captchaRow As Global.System.Web.UI.HtmlControls.HtmlGenericControl
+    
+    '''<summary>
+    '''captchaLabel control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents captchaLabel As Global.System.Web.UI.UserControl
+    
+    '''<summary>
+    '''ctlCaptcha control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents ctlCaptcha As Global.DotNetNuke.UI.WebControls.CaptchaControl
+    
+    '''<summary>
+    '''humanQuestionRow control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents humanQuestionRow As Global.System.Web.UI.HtmlControls.HtmlGenericControl
+    
+    '''<summary>
+    '''humanQuestion control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents humanQuestion As Global.System.Web.UI.WebControls.Label
+    
+    '''<summary>
+    '''humanAnswerRow control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents humanAnswerRow As Global.System.Web.UI.HtmlControls.HtmlGenericControl
+    
+    '''<summary>
+    '''humanAnswer control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents humanAnswer As Global.System.Web.UI.WebControls.HiddenField
+    
+    '''<summary>
+    '''actionsRow control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents actionsRow As Global.System.Web.UI.HtmlControls.HtmlGenericControl
+    
+    '''<summary>
+    '''cmdUpdate control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents cmdUpdate As Global.System.Web.UI.WebControls.LinkButton
+    
+    '''<summary>
+    '''registerButton control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents registerButton As Global.System.Web.UI.WebControls.LinkButton
+    
+    '''<summary>
+    '''cancelButton control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents cancelButton As Global.System.Web.UI.WebControls.LinkButton
+    
+    '''<summary>
+    '''hidVerToken control.
+    '''</summary>
+    '''<remarks>
+    '''Auto-generated field.
+    '''To modify move field declaration from designer file to code-behind file.
+    '''</remarks>
+    Protected WithEvents hidVerToken As Global.System.Web.UI.WebControls.HiddenField
 End Class

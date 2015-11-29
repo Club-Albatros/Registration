@@ -42,6 +42,7 @@ Public Class Settings
    itm.Selected = Settings.RolesToShow.ContainsKey(Integer.Parse(itm.Value))
   Next
   chkMultiSelect.Checked = Settings.MultiSelect
+  chkShowHumanQuestion.Checked = Settings.ShowHumanQuestion
 
  End Sub
 
@@ -58,6 +59,7 @@ Public Class Settings
   End If
   Settings.RolesToShow = Globals.GetRoleDictionary(PortalId, String.Join(";", res), Threading.Thread.CurrentThread.CurrentCulture.Name)
   Settings.MultiSelect = chkMultiSelect.Checked
+  Settings.ShowHumanQuestion = chkShowHumanQuestion.Checked
   Settings.SaveSettings()
 
  End Sub

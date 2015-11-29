@@ -45,6 +45,12 @@
  <dnn:captchacontrol id="ctlCaptcha" captchawidth="130" captchaheight="40" ErrorStyle-CssClass="dnnFormMessage dnnFormError dnnCaptcha" runat="server" />
 </div>
 
+<div id="humanQuestionRow" runat="server" visible="false" class="dnnFormItem">
+    <div class="dnnLabel"><label><asp:Label runat="server" ID="humanQuestion" /></label></div>
+    <div id="humanAnswerRow" runat="server"></div>
+    <asp:HiddenField runat="server" ID="humanAnswer" />
+</div>
+
 <ul id="actionsRow" runat="server" class="dnnActions dnnClear">
  <li>
   <asp:LinkButton ID="cmdUpdate" runat="server" CssClass="dnnPrimaryAction" resourcekey="cmdUpdate" Visible="false" />
