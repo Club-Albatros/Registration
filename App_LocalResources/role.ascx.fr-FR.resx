@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="NoRedirect.Text" lastModified="2015-11-28 20:49:49">
+    <value xml:space="preserve">&lt; Aucune Redirection &gt;</value>
+  </data>
+  <data name="plRedirectTab.Help" lastModified="2015-11-28 20:49:49">
+    <value xml:space="preserve">Si sélectionnée l'utilisateur est prise à cette page après l'enregistrement. Notez que l'utilisateur est prise à la première qui est sélectionnée.</value>
+  </data>
+  <data name="plRedirectTab.Text" lastModified="2015-11-28 20:49:49">
+    <value xml:space="preserve">Page de redirection</value>
+  </data>
+</root>
