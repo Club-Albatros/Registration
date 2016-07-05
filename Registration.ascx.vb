@@ -110,6 +110,7 @@ Partial Public Class Registration
   End Set
  End Property
 
+ Public Property PostbackHumanAnswer As String = ""
 #End Region
 
 #Region " Page Events "
@@ -167,6 +168,7 @@ Partial Public Class Registration
   End If
 
   If Settings.ShowHumanQuestion Then
+   PostbackHumanAnswer = humanAnswer.Value
    Dim r As New Random
    Dim n1 As Integer = r.Next(1, 21)
    Dim n2 As Integer = r.Next(1, 21)
@@ -241,7 +243,7 @@ Partial Public Class Registration
 
  Private Sub registerButton_Click(sender As Object, e As EventArgs) Handles registerButton.Click
   If Settings.ShowHumanQuestion Then
-   Dim goodAnswer As String = (New PortalSecurity).DecryptString(humanAnswer.Value, "AlbatrosRegistration")
+   Dim goodAnswer As String = (New PortalSecurity).DecryptString(PostbackHumanAnswer, "AlbatrosRegistration")
    Dim givenAnswer As String = ""
    For Each param As String In Request.Params.AllKeys
     If Regex.Match(param, "hans\d+").Success Then
