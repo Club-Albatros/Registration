@@ -26,6 +26,6 @@ Imports System.Runtime.InteropServices
 ' by using the '*' as shown below:
 
 <Assembly: Guid("590ad1b3-f972-4f85-87f8-7f536c178420")>
-<Assembly: AssemblyVersion("01.00.03")> 
-<Assembly: AssemblyInformationalVersion("01.00.03")>
-<Assembly: AssemblyFileVersion("01.00.03")>
+<Assembly: AssemblyVersion("01.00.04")> 
+<Assembly: AssemblyInformationalVersion("01.00.04")>
+<Assembly: AssemblyFileVersion("01.00.04")>
